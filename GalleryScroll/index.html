@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skiper50 Carousel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    .Carousal_004 { width: 100%; height: 440px; padding-bottom: 50px !important; }
+    .Carousal_004 .swiper-slide { background-position: center; background-size: cover; width: 300px; border-radius: 25px; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .framer-motion-container { opacity: 0; animation: fadeInUp 0.3s ease-out 0.5s forwards; }
+    .framer-motion-inner { opacity: 0; animation: fadeIn 0.3s ease-out 0.5s forwards; }
+  </style>
+</head>
+<body class="flex h-full w-full items-center justify-center overflow-hidden bg-[#f5f4f3]">
+  <div class="relative w-full max-w-4xl px-5 framer-motion-container">
+    <div class="w-full framer-motion-inner">
+      <div class="swiper Carousal_004">
+        <div class="swiper-wrapper" id="carousel-wrapper"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    const images = [
+      { src: "images/image1.jpg", alt: "Nature Scene 1" },
+      { src: "images/image2.jpg", alt: "Parrot" },
+      { src: "images/image3.jpg", alt: "Mountain Lake" },
+      { src: "images/image4.jpg", alt: "Sunset Flowers" },
+    ];
+    const wrapper = document.getElementById('carousel-wrapper');
+    images.forEach(image => {
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide';
+      slide.innerHTML = `<img class="h-full w-full scale-105 rounded-3xl object-cover" src="${image.src}" alt="${image.alt}" />`;
+      wrapper.appendChild(slide);
+    });
+    new Swiper('.Carousal_004', {
+      effect: 'creative', grabCursor: true, slidesPerView: 'auto', centeredSlides: true, loop: true,
+      pagination: { el: '.swiper-pagination', clickable: true },
+      creativeEffect: {
+        prev: { shadow: true, origin: "left center", translate: ["-5%", 0, -200], rotate: [0, 100, 0] },
+        next: { origin: "right center", translate: ["5%", 0, -200], rotate: [0, -100, 0] }
+      }
+    });
+  </script>
+</body>
+</html>
