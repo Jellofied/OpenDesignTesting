@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joel's components*</title>
+  <title>fancy components*</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
 
     :root {
-      --bg:     oklch(97% 0.003 240);
+      --bg:      oklch(97% 0.003 240);
       --surface: oklch(100% 0 0);
-      --fg:     oklch(18% 0.012 250);
-      --muted:  oklch(54% 0.012 250);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
       --border:  oklch(88% 0.008 250);
       --accent:  oklch(50% 0.20 255);
       --accent-subtle: oklch(95% 0.04 255);
@@ -222,6 +222,7 @@
     .nav-item:hover .nav-item-arrow,
     .nav-item.active .nav-item-arrow { opacity: 1; }
 
+    /* Loading / error states */
     .state-msg {
       padding: 1.5rem 1rem;
       font-size: 0.85rem;
@@ -309,6 +310,7 @@
       display: block;
     }
 
+    /* Welcome / empty state */
     .empty-state {
       flex: 1;
       display: flex;
@@ -349,6 +351,7 @@
       line-height: 1.6;
     }
 
+    /* Config modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -435,6 +438,7 @@
     }
     .loading-overlay.hidden { opacity: 0; pointer-events: none; }
 
+    /* Search filter */
     .sidebar-search {
       padding: 0.5rem 0.75rem;
       border-bottom: 1px solid var(--border);
@@ -465,9 +469,10 @@
 </head>
 <body>
 
+  <!-- ── HEADER ── -->
   <header class="header">
     <div class="header-left">
-      <a href="#" class="header-logo">Joel's components<span>*</span></a>
+      <a href="#" class="header-logo">fancy components<span>*</span></a>
       <button class="repo-badge" id="repoBtn">
         <span>📁</span>
         <span id="repoName">configure repo</span>
@@ -487,7 +492,10 @@
     </div>
   </header>
 
+  <!-- ── MAIN ── -->
   <div class="main-wrapper">
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <p class="sidebar-title">Components</p>
@@ -499,11 +507,12 @@
       <nav class="sidebar-nav" id="sidebarNav">
         <div class="state-msg">
           <span class="icon">🔧</span>
-          Loading repository...
+          Configure your repo to get started.
         </div>
       </nav>
     </aside>
 
+    <!-- CONTENT PANE -->
     <div class="content-pane">
       <div class="content-toolbar" id="toolbar" style="display:none">
         <div class="breadcrumb">
@@ -524,24 +533,33 @@
       </div>
 
       <div class="preview-frame-wrap" id="previewWrap">
+
+        <!-- WELCOME STATE -->
         <div class="empty-state" id="emptyState">
           <div class="empty-state-icon">✦</div>
-          <h2>Select a component</h2>
-          <p>Choose from the sidebar to preview the component index.</p>
+          <h2>Your Component Library</h2>
+          <p>Click <strong>configure repo</strong> above to point this page at your GitHub repository. Each folder with an <code>index.html</code> will appear in the sidebar.</p>
+          <button class="btn btn-primary" onclick="openModal()">Configure Repo</button>
         </div>
+
+        <!-- LOADING OVERLAY -->
         <div class="loading-overlay hidden" id="loadingOverlay">
           <div class="spinner"></div>
           <span id="loadingMsg">Loading preview…</span>
         </div>
+
+        <!-- IFRAME -->
         <iframe id="preview" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
       </div>
     </div>
   </div>
 
+  <!-- ── CONFIG MODAL ── -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2>Configure Repository</h2>
-      <p>Current: <code>Jellofied/OpenDesignTesting</code></p>
+      <p>Enter your GitHub username and repository name. This page will list all folders containing an <code>index.html</code>.</p>
+
       <div class="field">
         <label>GitHub Username</label>
         <input type="text" id="inputUser" placeholder="e.g. octocat">
@@ -549,30 +567,29 @@
       <div class="field">
         <label>Repository Name</label>
         <input type="text" id="inputRepo" placeholder="e.g. my-components">
+        <p class="hint">Your GitHub Pages URL will be: <code>https://&lt;user&gt;.github.io/&lt;repo&gt;/</code></p>
       </div>
       <div class="field">
         <label>Branch (optional)</label>
         <input type="text" id="inputBranch" placeholder="main">
       </div>
+
       <div class="modal-footer">
         <button class="btn" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveConfig()">Save & Load</button>
+        <button class="btn btn-primary" onclick="saveConfig()">Load Repository</button>
       </div>
     </div>
   </div>
 
   <script>
-    const DEFAULT_CONFIG = {
-      user: 'Jellofied',
-      repo: 'OpenDesignTesting',
-      branch: 'main'
-    };
-
-    let config = JSON.parse(localStorage.getItem('fc_config')) || DEFAULT_CONFIG;
+    // ── STATE ──────────────────────────────────────────────────
+    let config = JSON.parse(localStorage.getItem('fc_config') || 'null');
     let allFolders = [];
     let activeFolder = null;
 
+    // ── INIT ──────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
+      // Keyboard shortcut for search
       document.addEventListener('keydown', e => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
           e.preventDefault();
@@ -590,78 +607,189 @@
       });
 
       document.getElementById('repoBtn').addEventListener('click', openModal);
-      applyConfig(config, false);
+
+      // Pre-fill modal if config exists
+      if (config) {
+        applyConfig(config, false);
+      } else {
+        document.getElementById('folderCount').textContent = 'No repo configured';
+      }
     });
 
+    // ── MODAL ────────────────────────────────────────────────
     function openModal() {
-      document.getElementById('inputUser').value = config.user;
-      document.getElementById('inputRepo').value = config.repo;
-      document.getElementById('inputBranch').value = config.branch;
+      if (config) {
+        document.getElementById('inputUser').value = config.user || '';
+        document.getElementById('inputRepo').value = config.repo || '';
+        document.getElementById('inputBranch').value = config.branch || '';
+      }
       document.getElementById('modalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('inputUser').focus(), 100);
     }
 
-    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
 
     function saveConfig() {
-      const user = document.getElementById('inputUser').value.trim();
-      const repo = document.getElementById('inputRepo').value.trim();
+      const user   = document.getElementById('inputUser').value.trim();
+      const repo   = document.getElementById('inputRepo').value.trim();
       const branch = document.getElementById('inputBranch').value.trim() || 'main';
+
+      if (!user || !repo) {
+        document.getElementById('inputRepo').focus();
+        return;
+      }
+
       config = { user, repo, branch };
       localStorage.setItem('fc_config', JSON.stringify(config));
       closeModal();
       applyConfig(config, true);
     }
 
+    // ── LOAD REPO ─────────────────────────────────────────────
     async function applyConfig(cfg, refresh) {
       document.getElementById('repoName').textContent = `${cfg.user}/${cfg.repo}`;
       document.getElementById('githubLink').href = `https://github.com/${cfg.user}/${cfg.repo}`;
       document.getElementById('breadcrumbRepo').textContent = cfg.repo;
-      document.getElementById('folderCount').innerHTML = '<span class="spinner"></span>';
+      document.getElementById('folderCount').innerHTML = '<span class="spinner"></span> Loading…';
+
       await loadFolders(cfg);
     }
 
     async function loadFolders(cfg) {
       const nav = document.getElementById('sidebarNav');
+      nav.innerHTML = '<div class="state-msg"><span class="spinner" style="margin:auto;display:block"></span><br>Fetching folders…</div>';
+
       try {
-        const res = await fetch(`https://api.github.com/repos/${cfg.user}/${cfg.repo}/git/trees/${cfg.branch}?recursive=1`);
+        const apiUrl = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/git/trees/${cfg.branch}?recursive=1`;
+        const res = await fetch(apiUrl, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+
+        if (!res.ok) throw new Error(`GitHub API ${res.status}: ${res.statusText}`);
+
         const data = await res.json();
-        const htmlFiles = new Set(data.tree.filter(f => f.path.endsWith('/index.html')).map(f => f.path.split('/')[0]));
-        allFolders = [...htmlFiles].sort();
-        document.getElementById('folderCount').innerHTML = `<strong>${allFolders.length}</strong> components`;
-        renderNav(allFolders, cfg);
+
+        // Find folders that have an index.html inside them (top-level folders only)
+        const htmlFiles = new Set(
+          data.tree
+            .filter(f => f.type === 'blob' && f.path.endsWith('/index.html'))
+            .map(f => f.path.split('/')[0])
+        );
+
+        // Also grab any top-level folder (even without index.html) — but only show ones with index.html for previewing
+        // Folders = items with type 'tree' at depth 1
+        const topFolders = data.tree
+          .filter(f => f.type === 'tree' && !f.path.includes('/'))
+          .map(f => f.path)
+          .filter(name => htmlFiles.has(name))
+          .sort((a, b) => a.localeCompare(b));
+
+        allFolders = topFolders;
+
+        document.getElementById('folderCount').innerHTML =
+          `<strong>${topFolders.length}</strong> component${topFolders.length !== 1 ? 's' : ''}`;
+
+        renderNav(topFolders, cfg);
+
       } catch (err) {
-        nav.innerHTML = `<div class="state-msg">Error loading repository.</div>`;
+        console.error(err);
+        document.getElementById('folderCount').textContent = 'Error loading';
+        nav.innerHTML = `<div class="state-msg">
+          <span class="icon">⚠️</span>
+          Could not fetch the repository.<br><small>${err.message}</small>
+          <br><br>
+          <button class="btn" onclick="openModal()">Reconfigure</button>
+        </div>`;
       }
     }
 
     function renderNav(folders, cfg, filter = '') {
       const nav = document.getElementById('sidebarNav');
-      const visible = folders.filter(f => f.toLowerCase().includes(filter.toLowerCase()));
-      nav.innerHTML = visible.map(name => `
-        <button class="nav-item ${name === activeFolder ? 'active' : ''}" onclick="loadPreview('${name}', ${JSON.stringify(cfg).replace(/"/g, '&quot;')})">
+      const visible = filter
+        ? folders.filter(f => f.toLowerCase().includes(filter.toLowerCase()))
+        : folders;
+
+      if (visible.length === 0) {
+        nav.innerHTML = `<div class="state-msg">No folders match "<em>${filter}</em>"</div>`;
+        return;
+      }
+
+      nav.innerHTML = '';
+      visible.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-item' + (name === activeFolder ? ' active' : '');
+        btn.dataset.folder = name;
+        btn.innerHTML = `
           <span class="nav-item-icon">📂</span>
           <span class="nav-item-label">${name}</span>
-        </button>
-      `).join('');
+          <span class="nav-item-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => loadPreview(name, cfg));
+        nav.appendChild(btn);
+      });
     }
 
-    function filterFolders(query) { renderNav(allFolders, config, query); }
+    function filterFolders(query) {
+      if (!config) return;
+      renderNav(allFolders, config, query);
+    }
 
+    // ── PREVIEW ──────────────────────────────────────────────
     async function loadPreview(folder, cfg) {
       activeFolder = folder;
-      renderNav(allFolders, cfg);
+
+      // Update sidebar active state
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.folder === folder);
+      });
+
+      // Show toolbar
       document.getElementById('toolbar').style.display = 'flex';
       document.getElementById('breadcrumbFolder').textContent = folder;
-      const previewUrl = `https://${cfg.user}.github.io/${cfg.repo}/${folder}/index.html`;
-      document.getElementById('openGhLink').href = `https://github.com/${cfg.user}/${cfg.repo}/tree/${cfg.branch}/${folder}`;
+
+      // Build URLs
+      const pagesBase  = `https://${cfg.user}.github.io/${cfg.repo}`;
+      const ghFileLink = `https://github.com/${cfg.user}/${cfg.repo}/tree/${cfg.branch}/${folder}`;
+      const previewUrl = `${pagesBase}/${folder}/index.html`;
+
+      document.getElementById('openGhLink').href  = ghFileLink;
       document.getElementById('openRawLink').href = previewUrl;
 
-      const iframe = document.getElementById('preview');
-      document.getElementById('emptyState').style.display = 'none';
-      document.getElementById('loadingOverlay').classList.remove('hidden');
+      // Show loading
+      const iframe       = document.getElementById('preview');
+      const emptyState   = document.getElementById('emptyState');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+
+      emptyState.style.display = 'none';
+      iframe.style.display     = 'none';
+      loadingOverlay.classList.remove('hidden');
+      document.getElementById('loadingMsg').textContent = `Loading ${folder}…`;
+
+      // Load iframe
+      iframe.src = '';
+      iframe.onload = () => {
+        loadingOverlay.classList.add('hidden');
+        iframe.style.display = 'block';
+      };
+      iframe.onerror = () => {
+        loadingOverlay.classList.add('hidden');
+        iframe.style.display = 'block';
+      };
       iframe.src = previewUrl;
-      iframe.onload = () => document.getElementById('loadingOverlay').classList.add('hidden');
+
+      // Fallback: if onload doesn't fire (cross-origin), just show after a delay
+      setTimeout(() => {
+        if (!loadingOverlay.classList.contains('hidden')) {
+          loadingOverlay.classList.add('hidden');
+          iframe.style.display = 'block';
+        }
+      }, 4000);
     }
   </script>
 </body>
