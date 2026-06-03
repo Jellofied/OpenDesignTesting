@@ -1,121 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vibe Design Testing Lab</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            background-color: #0f172a; /* Sleek dark mode base */
-            color: #f8fafc;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fancy Components</title>
+  <style>
+    :root {
+      /* Modern Minimal Palette */
+      --bg:      oklch(99% 0.002 240); /* Light background for contrast */
+      --surface: oklch(100% 0 0); /* Pure white surface, used for cards etc. */
+      --fg:      oklch(18% 0.012 250); /* Dark foreground for text */
+      --muted:   oklch(54% 0.012 250); /* Muted text/icons */
+      --border:  oklch(92% 0.005 250); /* Hairline borders */
+      --accent:  oklch(58% 0.18 255); /* Electric blue accent */
 
-        /* Fixed Sidebar Styling */
-        .sidebar {
-            width: 260px;
-            background-color: #1e293b;
-            border-right: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-        }
-        .sidebar h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: #94a3b8;
-            margin-bottom: 24px;
-            padding-left: 8px;
-        }
-        .menu-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        /* Crucial: The target attribute on these links matches the iframe name */
-        .menu-item a {
-            display: block;
-            padding: 10px 12px;
-            color: #cbd5e1;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-        }
-        .menu-item a:hover {
-            background-color: #334155;
-            color: #ffffff;
-        }
-        .menu-item a:focus, .menu-item a.active {
-            background-color: #3b82f6;
-            color: #ffffff;
-        }
+      /* Dark mode overrides for Modern Minimal */
+      --bg-dark:      oklch(10% 0.005 250);
+      --surface-dark: oklch(15% 0.01 250);
+      --fg-dark:      oklch(90% 0.005 250);
+      --muted-dark:   oklch(60% 0.005 250);
+      --border-dark:  oklch(20% 0.005 250);
+      --accent-dark:  oklch(58% 0.18 255); /* Accent remains bright */
 
-        /* Preview Canvas Viewport */
-        .main-content {
-            flex: 1;
-            height: 100%;
-            background-color: #0f172a;
-            position: relative;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background-color: transparent;
-        }
-    </style>
+
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--fg-dark); /* Using dark mode foreground by default */
+      background-color: var(--bg-dark); /* Using dark mode background by default */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+
+    /* Basic layout for responsiveness */
+    .container {
+      display: flex;
+      flex-grow: 1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border-dark);
+      background-color: var(--surface-dark);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .header-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--fg-dark);
+      text-decoration: none;
+    }
+
+    .nav-link {
+      color: var(--muted-dark);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .nav-link:hover {
+      color: var(--fg-dark);
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 0.5rem 0.8rem;
+      gap: 0.5rem;
+    }
+
+    .search-input {
+      background: none;
+      border: none;
+      color: var(--fg-dark);
+      font-size: 0.9rem;
+      width: 150px;
+    }
+
+    .search-input::placeholder {
+      color: var(--muted-dark);
+    }
+
+    .github-icon, .theme-toggle {
+      color: var(--fg-dark);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* Main content layout */
+    .main-wrapper {
+      display: flex;
+      flex-grow: 1;
+    }
+
+    .sidebar {
+      width: 280px;
+      padding: 2rem;
+      border-right: 1px solid var(--border-dark);
+      flex-shrink: 0;
+      overflow-y: auto;
+      background-color: var(--bg-dark);
+    }
+
+    .sidebar h2, .sidebar h3 {
+      color: var(--fg-dark);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-display);
+    }
+
+    .sidebar h2 { font-size: 1.2rem; }
+    .sidebar h3 { font-size: 1rem; }
+
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar a {
+      color: var(--muted-dark);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: block;
+      padding: 0.2rem 0;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      color: var(--fg-dark);
+    }
+
+
+    .content-area {
+      flex-grow: 1;
+      padding: 2rem;
+      display: flex;
+      gap: 2rem;
+    }
+
+    .article-content {
+      flex-grow: 1;
+      max-width: 800px; /* Limit content width for readability */
+    }
+
+    .on-this-page {
+      width: 200px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 2rem; /* Adjust based on header height */
+      align-self: flex-start;
+      padding-left: 1rem;
+      border-left: 1px solid var(--border-dark); /* Border for separator */
+    }
+
+    .on-this-page h3 {
+      font-family: var(--font-display);
+      color: var(--fg-dark);
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .on-this-page ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .on-this-page li {
+      margin-bottom: 0.5rem;
+    }
+
+    .on-this-page a {
+      color: var(--muted-dark);
+      text-decoration: none;
+      font-size: 0.85rem;
+      display: block;
+      padding: 0.2rem 0;
+    }
+
+    .on-this-page a:hover {
+      color: var(--fg-dark);
+    }
+
+
+    /* Typography for demonstration */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-display);
+      color: var(--fg-dark);
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    p { margin-bottom: 1rem; line-height: 1.6; }
+    a { color: var(--accent-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    pre {
+      background-color: var(--surface-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Segoe UI Mono', monospace;
+      color: var(--fg-dark);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .on-this-page {
+        display: none; /* Hide on smaller screens to save space */
+      }
+      .content-area {
+        gap: 0; /* Remove gap when on-this-page is hidden */
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .search-bar {
+        flex-grow: 1;
+        width: auto;
+      }
+
+      .search-input {
+        width: auto;
+        flex-grow: 1;
+      }
+
+      .main-wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-dark);
+        padding: 1rem;
+      }
+
+      .content-area {
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header class="header">
+    <div class="header-left">
+      <a href="#" class="header-logo">fancy components*</a>
+      <a href="#" class="nav-link">Docs</a>
+      <a href="#" class="nav-link">Components</a>
+    </div>
+    <div class="header-right">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" class="search-input" placeholder="Search docs...">
+        <span style="color: var(--muted-dark); font-size: 0.8rem;">Ctrl K</span>
+      </div>
+      <a href="#" class="github-icon">🐙</a> <!-- Placeholder for GitHub icon -->
+      <span class="theme-toggle">💡</span> <!-- Placeholder for theme toggle -->
+    </div>
+  </header>
 
-    <!-- Left Navigation Sidebar -->
-    <nav class="sidebar">
-        <h2>Component Lab</h2>
-        <ul class="menu-list">
-            <!-- 
-              To add new components, just add an <li> here. 
-              The href points to the folder, and target="preview-canvas" tells the iframe to load it.
-            -->
-            <li class="menu-item">
-                <a href="./glass-card/" target="preview-canvas">🔮 Glassmorphism Card</a>
-            </li>
-            <li class="menu-item">
-                <a href="./neon-button/" target="preview-canvas">⚡ Neon Button</a>
-            </li>
+  <div class="main-wrapper">
+    <aside class="sidebar">
+      <h2>Getting Started</h2>
+      <nav>
+        <ul>
+          <li><a href="#">Introduction</a></li>
+          <li><a href="#">Installation</a></li>
+          <li><a href="#">Components</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Ilms.txt</a></li>
         </ul>
-    </nav>
+      </nav>
+      <h3>Text (20)</h3>
+      <nav>
+        <ul>
+          <li><a href="#">Letter Swap Hover</a></li>
+          <li><a href="#">Letter 3D Swap</a></li>
+          <li><a href="#">Random Letter Swap Hover</a></li>
+          <li><a href="#">Vertical Cut Reveal</a></li>
+          <li><a href="#">Text Rotate</a></li>
+          <li><a href="#">Variable Font Hover By Letter</a></li>
+          <li><a href="#">Variable Font Hover By Random Letter</a></li>
+          <li><a href="#">Scroll And Swap</a></li>
+          <li><a href="#">Text Cursor Proximity</a></li>
+          <li><a href="#">Variable Font & Cursor</a></li>
+          <li><a href="#">Variable Font Cursor Proximity</a></li>
+          <li><a href="#">Breathing Text</a></li>
+          <li><a href="#">Underline Animation</a></li>
+          <li><a href="#">Underline To Background</a></li>
+          <li><a href="#">Basic Number Ticker</a></li>
+          <li><a href="#">Typewriter</a></li>
+          <li><a href="#">Scramble Hover</a></li>
+          <li><a href="#">Text Highlighter</a></li>
+          <li><a href="#">Scramble In</a></li>
+          <li><a href="#">Text Along Path</a></li>
+        </ul>
+      </nav>
+      <h3>Carousel (1)</h3>
+      <nav>
+        <ul>
+          <li><a href="#">Box Carousel</a></li>
+        </ul>
+      </nav>
+      <h3>Background (2)</h3>
+      <nav>
+        <ul>
+          <li><a href="#">Animated Gradient With SVG</a></li>
+          <li><a href="#">Pixel Trail</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-    <!-- Right Display Window -->
-    <main class="main-content">
-        <!-- name="preview-canvas" is what links this window to your sidebar links -->
-        <iframe name="preview-canvas" src="about:blank" title="Component Preview"></iframe>
+    <main class="content-area">
+      <article class="article-content">
+        <h1>Text Highlighter</h1>
+        <p>An animated text highlighting component with multiple trigger modes and directional animations.</p>
+
+        <h2>Installation</h2>
+        <p>CLI Manual</p>
+        <pre><code>pnpm dlx shadcn add @fancy/text-highlighter</code></pre>
+
+        <h2>Usage</h2>
+        <h3>Typeface alphabets</h3>
+        <p>The present-day designer has a host of printing types at his disposal. Since Gutenberg first invented movable type in 1436-55 hundreds of different types have been designed and cast in lead. The most recent technical developments with computer and photo-typesetting have once again brought new faces or variations of old ones on the market.</p>
+        <p>The choice is up to the designer. It is left to his feeling for form to use good or poor typefaces for his design work. In view of the... </p>
+        <!-- More content will go here -->
+      </article>
+
+      <aside class="on-this-page">
+        <h3>On This Page</h3>
+        <nav>
+          <ul>
+            <li><a href="#">Installation</a></li>
+            <li><a href="#">Usage</a></li>
+            <li><a href="#">Understanding the component</a></li>
+            <li><a href="#">Different directions</a></li>
+            <li><a href="#">Hover</a></li>
+            <li><a href="#">Control via ref</a></li>
+            <li><a href="#">Notes</a></li>
+            <li><a href="#">Props</a></li>
+            <li><a href="#">TextHighlighterProps</a></li>
+            <li><a href="#">TextHighlighterRef</a></li>
+          </ul>
+        </nav>
+      </aside>
     </main>
-
-    <script>
-        // Optional quick script to add visual active state to the clicked menu item
-        const links = document.querySelectorAll('.menu-item a');
-        links.forEach(link => {
-            link.addEventListener('click', () => {
-                links.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-            });
-        });
-        
-        // Auto-load the first component on launch if one exists
-        if(links.length > 0) {
-            links[0].click();
-        }
-    </script>
+  </div>
 </body>
 </html>
