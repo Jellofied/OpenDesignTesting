@@ -458,12 +458,136 @@
     .sidebar-search input:focus { border-color: var(--accent); }
     .sidebar-search input::placeholder { color: var(--muted); }
 
+    /* ── MOBILE MENU BUTTON ── */
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .mobile-menu-btn:hover { background: var(--bg); border-color: oklch(80% 0.01 250); }
+    .mobile-menu-btn:active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); }
+
+    /* ── MOBILE DRAWER BACKDROP ── */
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: oklch(0% 0 0 / 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .drawer-backdrop.open { opacity: 1; }
+
+    /* ── MOBILE DRAWER ── */
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 280px;
+      max-width: 85vw;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      z-index: 201;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 4px 0 24px oklch(18% 0.012 250 / 0.12);
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem 0 1.25rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--fg);
+      letter-spacing: -0.02em;
+    }
+    .drawer-title span { color: var(--accent); }
+
+    .drawer-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .drawer-close:hover { background: var(--bg); color: var(--fg); }
+
+    .drawer-meta {
+      padding: 0.75rem 1.25rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-meta .sidebar-title { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 0.3rem; }
+    .drawer-meta .folder-count-mobile { font-size: 0.78rem; color: var(--muted); }
+    .drawer-meta .folder-count-mobile strong { color: var(--fg); font-weight: 500; }
+
+    .drawer-search {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-search input {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .drawer-search input:focus { border-color: var(--accent); }
+    .drawer-search input::placeholder { color: var(--muted); }
+
+    .drawer-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+    }
+    .drawer-nav::-webkit-scrollbar { width: 4px; }
+    .drawer-nav::-webkit-scrollbar-track { background: transparent; }
+    .drawer-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
     @media (max-width: 768px) {
-      :root { --sidebar-w: 200px; }
       .search-bar { display: none; }
     }
-    @media (max-width: 560px) {
+    @media (max-width: 600px) {
       .sidebar { display: none; }
+      .mobile-menu-btn { display: flex; }
+      .drawer-backdrop { display: block; pointer-events: none; }
+      .mobile-drawer { display: flex; }
+      /* Ensure repo badge text is truncated on small screens */
+      #repoName { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     }
   </style>
 </head>
@@ -472,6 +596,14 @@
   <!-- ── HEADER ── -->
   <header class="header">
     <div class="header-left">
+      <!-- Mobile menu toggle -->
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
       <a href="#" class="header-logo">Joel's Components<span>*</span></a>
       <button class="repo-badge" id="repoBtn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
@@ -579,6 +711,32 @@
     </div>
   </div>
 
+  <!-- ── MOBILE DRAWER ── -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer" aria-label="Components menu">
+    <div class="drawer-header">
+      <span class="drawer-title">Joel's Components<span>*</span></span>
+      <button class="drawer-close" id="drawerCloseBtn" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="4" x2="20" y2="20"/>
+          <line x1="20" y1="4" x2="4" y2="20"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-meta">
+      <p class="sidebar-title">Components</p>
+      <p class="folder-count-mobile" id="folderCountMobile"><span class="spinner"></span></p>
+    </div>
+    <div class="drawer-search">
+      <input type="text" placeholder="Filter…" id="filterInputMobile">
+    </div>
+    <nav class="drawer-nav" id="drawerNav">
+      <div class="state-msg">
+        <span class="spinner" style="margin:auto;display:block"></span>
+      </div>
+    </nav>
+  </aside>
+
   <script>
     // ── STATE ──────────────────────────────────────────────────
     const DEFAULT_CONFIG = { user: 'Jellofied', repo: 'OpenDesignTesting', branch: 'main' };
@@ -594,6 +752,7 @@
           e.preventDefault();
           document.getElementById('globalSearch').focus();
         }
+        if (e.key === 'Escape') closeDrawer();
       });
 
       document.getElementById('globalSearch').addEventListener('input', e => {
@@ -605,7 +764,17 @@
         filterFolders(e.target.value);
       });
 
+      // Mobile drawer filter
+      document.getElementById('filterInputMobile').addEventListener('input', e => {
+        filterFoldersMobile(e.target.value);
+      });
+
       document.getElementById('repoBtn').addEventListener('click', openModal);
+
+      // Mobile drawer toggle
+      document.getElementById('mobileMenuBtn').addEventListener('click', openDrawer);
+      document.getElementById('drawerCloseBtn').addEventListener('click', closeDrawer);
+      document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
 
       // Always load on startup
       applyConfig(config, false);
@@ -644,12 +813,36 @@
       applyConfig(config, true);
     }
 
-    // ── LOAD REPO ─────────────────────────────────────────────
+    // ── MOBILE DRAWER ────────────────────────────────────────
+    function openDrawer() {
+      const drawer   = document.getElementById('mobileDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const btn      = document.getElementById('mobileMenuBtn');
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+      backdrop.style.pointerEvents = 'auto';
+      btn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      const drawer   = document.getElementById('mobileDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const btn      = document.getElementById('mobileMenuBtn');
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+      setTimeout(() => { backdrop.style.pointerEvents = 'none'; }, 250);
+      btn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+
     async function applyConfig(cfg, refresh) {
       document.getElementById('repoName').textContent = `${cfg.user}/${cfg.repo}`;
       document.getElementById('githubLink').href = `https://github.com/${cfg.user}/${cfg.repo}`;
       document.getElementById('breadcrumbRepo').textContent = cfg.repo;
       document.getElementById('folderCount').innerHTML = '<span class="spinner"></span> Loading…';
+      document.getElementById('folderCountMobile').innerHTML = '<span class="spinner"></span>';
 
       await loadFolders(cfg);
     }
@@ -685,10 +878,12 @@
 
         allFolders = topFolders;
 
-        document.getElementById('folderCount').innerHTML =
-          `<strong>${topFolders.length}</strong> component${topFolders.length !== 1 ? 's' : ''}`;
+        const countHtml = `<strong>${topFolders.length}</strong> component${topFolders.length !== 1 ? 's' : ''}`;
+        document.getElementById('folderCount').innerHTML = countHtml;
+        document.getElementById('folderCountMobile').innerHTML = countHtml;
 
         renderNav(topFolders, cfg);
+        renderDrawerNav(topFolders, cfg);
 
       } catch (err) {
         console.error(err);
@@ -728,6 +923,40 @@
       });
     }
 
+    function renderDrawerNav(folders, cfg, filter = '') {
+      const nav = document.getElementById('drawerNav');
+      const visible = filter
+        ? folders.filter(f => f.toLowerCase().includes(filter.toLowerCase()))
+        : folders;
+
+      if (visible.length === 0) {
+        nav.innerHTML = `<div class="state-msg">No folders match "<em>${filter}</em>"</div>`;
+        return;
+      }
+
+      nav.innerHTML = '';
+      visible.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-item' + (name === activeFolder ? ' active' : '');
+        btn.dataset.folder = name;
+        btn.innerHTML = `
+          <span class="nav-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="nav-item-label">${name}</span>
+          <span class="nav-item-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => {
+          loadPreview(name, cfg);
+          closeDrawer();
+        });
+        nav.appendChild(btn);
+      });
+    }
+
+    function filterFoldersMobile(query) {
+      if (!config) return;
+      renderDrawerNav(allFolders, config, query);
+    }
+
     function filterFolders(query) {
       if (!config) return;
       renderNav(allFolders, config, query);
@@ -737,7 +966,7 @@
     async function loadPreview(folder, cfg) {
       activeFolder = folder;
 
-      // Update sidebar active state
+      // Update sidebar + drawer active state
       document.querySelectorAll('.nav-item').forEach(el => {
         el.classList.toggle('active', el.dataset.folder === folder);
       });
