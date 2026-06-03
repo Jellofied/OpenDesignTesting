@@ -1,0 +1,328 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,75..125,100..900&display=swap');
+
+  .vf-wrap { padding: 2rem 1.5rem; }
+
+  .vf-controls-top {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    align-items: center;
+  }
+
+  .font-btn {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .font-btn.active {
+    background: var(--color-text-primary);
+    color: var(--color-background-primary);
+    border-color: var(--color-text-primary);
+  }
+
+  .vf-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .vf-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    padding: 0.6rem 0;
+    cursor: pointer;
+    gap: 1rem;
+  }
+
+  .vf-text {
+    font-size: clamp(16px, 3.2vw, 30px);
+    color: var(--color-text-primary);
+    display: inline-block;
+    line-height: 1.15;
+    user-select: none;
+    letter-spacing: -0.01em;
+  }
+
+  .vf-text span {
+    display: inline-block;
+    white-space: pre;
+    transition: font-variation-settings 0.55s cubic-bezier(0.34, 1.3, 0.64, 1);
+  }
+
+  .vf-arrow {
+    font-size: 16px;
+    color: var(--color-text-tertiary);
+    transition: transform 0.25s ease, color 0.25s ease;
+    font-family: var(--font-sans);
+    flex-shrink: 0;
+  }
+
+  .vf-item:hover .vf-arrow {
+    transform: translate(3px, -3px);
+    color: var(--color-text-primary);
+  }
+
+  .config-section {
+    margin-top: 1.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-lg);
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .cfg-label {
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-sans);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .config-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .config-row:last-child { margin-bottom: 0; }
+
+  .config-row label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    min-width: 100px;
+  }
+
+  .config-row input[type=range] { flex: 1; }
+
+  .config-row span {
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 38px;
+    text-align: right;
+    font-family: var(--font-mono);
+    color: var(--color-text-primary);
+  }
+
+  .stagger-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .stagger-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    min-width: 100px;
+  }
+
+  .stagger-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+
+  .stagger-btn.active {
+    background: var(--color-text-primary);
+    color: var(--color-background-primary);
+    border-color: var(--color-text-primary);
+  }
+</style>
+
+<div class="vf-wrap">
+  <h2 class="sr-only">Variable font hover animation demo with sans-serif fonts — hover each role to see letter-by-letter weight and width animation</h2>
+
+  <div class="vf-controls-top">
+    <button class="font-btn active" data-font="inter">Inter</button>
+    <button class="font-btn" data-font="roboto">Roboto Flex</button>
+  </div>
+
+  <ul class="vf-list" id="roleList">
+    <li class="vf-item" data-stagger="first">
+      <span class="vf-text" data-label="Design Engineer"></span>
+      <span class="vf-arrow" aria-hidden="true">↗</span>
+    </li>
+    <li class="vf-item" data-stagger="last">
+      <span class="vf-text" data-label="Product Designer"></span>
+      <span class="vf-arrow" aria-hidden="true">↗</span>
+    </li>
+    <li class="vf-item" data-stagger="center">
+      <span class="vf-text" data-label="Engineering Manager"></span>
+      <span class="vf-arrow" aria-hidden="true">↗</span>
+    </li>
+    <li class="vf-item" data-stagger="first">
+      <span class="vf-text" data-label="Sales Engineer"></span>
+      <span class="vf-arrow" aria-hidden="true">↗</span>
+    </li>
+  </ul>
+
+  <div class="config-section">
+    <p class="cfg-label">Controls</p>
+    <div class="config-row">
+      <label>Target weight</label>
+      <input type="range" min="100" max="900" step="50" value="900" id="wgtSlider">
+      <span id="wgtVal">900</span>
+    </div>
+    <div class="config-row" id="wdthRow" style="display:none;">
+      <label>Target width</label>
+      <input type="range" min="75" max="125" step="1" value="125" id="wdthSlider">
+      <span id="wdthVal">125</span>
+    </div>
+    <div class="config-row">
+      <label>Stagger delay</label>
+      <input type="range" min="0" max="100" step="5" value="35" id="staggerSlider">
+      <span id="staggerVal">35ms</span>
+    </div>
+    <div class="stagger-row">
+      <span class="stagger-label">Stagger direction</span>
+      <button class="stagger-btn active" data-dir="first">First</button>
+      <button class="stagger-btn" data-dir="last">Last</button>
+      <button class="stagger-btn" data-dir="center">Center</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fonts = {
+    inter: { family: "'Inter', sans-serif", from: wgt => `'wght' ${wgt}`, to: (wgt) => `'wght' ${wgt}`, axes: [] },
+    roboto: { family: "'Roboto Flex', sans-serif", axes: ['wdth'] }
+  };
+
+  let currentFont = 'inter';
+  let globalStagger = 'first';
+
+  const wgtSlider = document.getElementById('wgtSlider');
+  const wdthSlider = document.getElementById('wdthSlider');
+  const staggerSlider = document.getElementById('staggerSlider');
+  const wgtVal = document.getElementById('wgtVal');
+  const wdthVal = document.getElementById('wdthVal');
+  const staggerVal = document.getElementById('staggerVal');
+  const wdthRow = document.getElementById('wdthRow');
+
+  wgtSlider.addEventListener('input', () => { wgtVal.textContent = wgtSlider.value; resetAll(); });
+  wdthSlider.addEventListener('input', () => { wdthVal.textContent = wdthSlider.value; resetAll(); });
+  staggerSlider.addEventListener('input', () => { staggerVal.textContent = staggerSlider.value + 'ms'; });
+
+  function fromSettings() {
+    if (currentFont === 'roboto') return `'wght' 300, 'wdth' 90`;
+    return `'wght' 300`;
+  }
+
+  function toSettings() {
+    const wgt = parseInt(wgtSlider.value);
+    if (currentFont === 'roboto') {
+      const wdth = parseInt(wdthSlider.value);
+      return `'wght' ${wgt}, 'wdth' ${wdth}`;
+    }
+    return `'wght' ${wgt}`;
+  }
+
+  function getOrder(dir, len) {
+    const idxs = [...Array(len).keys()];
+    if (dir === 'last') return idxs.reverse();
+    if (dir === 'center') {
+      const mid = Math.floor(len / 2);
+      return idxs.sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
+    }
+    return idxs;
+  }
+
+  function buildLetters(el) {
+    const label = el.dataset.label;
+    const fontFamily = fonts[currentFont].family;
+    el.innerHTML = '';
+    for (const ch of label) {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      s.style.fontFamily = fontFamily;
+      s.style.fontVariationSettings = fromSettings();
+      el.appendChild(s);
+    }
+  }
+
+  function animateLetters(item, toHover) {
+    const el = item.querySelector('.vf-text');
+    const spans = Array.from(el.children);
+    const dir = item.dataset.stagger || globalStagger;
+    const delay = parseInt(staggerSlider.value);
+    const order = getOrder(dir, spans.length);
+    const timers = item._timers || [];
+    timers.forEach(clearTimeout);
+    item._timers = [];
+    order.forEach((idx, i) => {
+      const span = spans[idx];
+      if (!span) return;
+      const t = setTimeout(() => {
+        span.style.fontVariationSettings = toHover ? toSettings() : fromSettings();
+      }, i * delay);
+      item._timers.push(t);
+    });
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.vf-item').forEach(item => {
+      const el = item.querySelector('.vf-text');
+      Array.from(el.children).forEach(s => {
+        s.style.fontVariationSettings = fromSettings();
+      });
+    });
+  }
+
+  function rebuildAll() {
+    document.querySelectorAll('.vf-item').forEach(item => {
+      const el = item.querySelector('.vf-text');
+      buildLetters(el);
+    });
+  }
+
+  const items = document.querySelectorAll('.vf-item');
+
+  items.forEach(item => {
+    const el = item.querySelector('.vf-text');
+    buildLetters(el);
+    item.addEventListener('mouseenter', () => animateLetters(item, true));
+    item.addEventListener('mouseleave', () => animateLetters(item, false));
+  });
+
+  document.querySelectorAll('.font-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFont = btn.dataset.font;
+      wdthRow.style.display = currentFont === 'roboto' ? 'flex' : 'none';
+      rebuildAll();
+    });
+  });
+
+  document.querySelectorAll('.stagger-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stagger-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      globalStagger = btn.dataset.dir;
+      items.forEach(item => item.dataset.stagger = globalStagger);
+    });
+  });
+</script>
