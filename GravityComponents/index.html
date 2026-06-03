@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravity — Physics Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Unbounded:wght@200;400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f0ece4;
+    --ink: #0d0d0d;
+    --accent1: #ff3b1f;
+    --accent2: #0033ff;
+    --accent3: #00c896;
+    --accent4: #ffcc00;
+    --accent5: #c026d3;
+    --accent6: #ff7a1a;
+    --pill-radius: 999px;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: 'DM Mono', monospace;
+    overflow: hidden;
+  }
+
+  /* ── Page layout ──────────────────────────────────── */
+  #page {
+    width: 100dvw;
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+    padding: 24px 32px 20px;
+    gap: 16px;
+  }
+
+  /* ── Header row ───────────────────────────────────── */
+  #header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-shrink: 0;
+    pointer-events: none;
+  }
+
+  #title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.6rem, 4vw, 3.8rem);
+    line-height: 0.9;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  #title span {
+    display: block;
+    color: var(--accent1);
+    font-style: italic;
+    font-weight: 200;
+    font-size: 0.45em;
+    letter-spacing: 0.05em;
+    text-transform: none;
+    margin-top: 4px;
+  }
+  #meta {
+    text-align: right;
+    font-size: 0.6rem;
+    line-height: 1.8;
+    color: #999;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Physics box ──────────────────────────────────── */
+  #box-wrapper {
+    position: relative;
+    min-height: 0; /* allow grid to shrink it */
+    border: 2.5px solid var(--ink);
+    border-radius: 12px;
+    box-shadow: 6px 6px 0 var(--ink);
+    background: #e8e3d8;
+    overflow: hidden;
+  }
+
+  /* clipping mask so DOM pills don't bleed outside */
+  #box-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 9px;
+  }
+
+  /* Matter.js canvas sits inside the box */
+  #matter-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    display: block;
+    pointer-events: all;
+  }
+
+  /* ── Physics DOM elements ─────────────────────────── */
+  .physics-el {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+    will-change: transform;
+    transform-origin: center center;
+    user-select: none;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: var(--pill-radius);
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(0.72rem, 1.4vw, 1rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .pill.dark   { background: var(--ink); color: var(--bg); }
+  .pill.red    { background: var(--accent1); color: #fff; }
+  .pill.blue   { background: var(--accent2); color: #fff; }
+  .pill.green  { background: var(--accent3); color: var(--ink); }
+  .pill.yellow { background: var(--accent4); color: var(--ink); }
+  .pill.purple { background: var(--accent5); color: #fff; }
+  .pill.orange { background: var(--accent6); color: #fff; }
+  .pill.ghost  { background: transparent; color: var(--ink); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px; height: 58px;
+    border-radius: 12px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .badge.red    { background: var(--accent1); color: #fff; }
+  .badge.blue   { background: var(--accent2); color: #fff; }
+  .badge.yellow { background: var(--accent4); color: var(--ink); }
+  .badge.green  { background: var(--accent3); color: var(--ink); }
+  .badge.purple { background: var(--accent5); color: #fff; }
+
+  .dot {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .dot.red    { background: var(--accent1); }
+  .dot.blue   { background: var(--accent2); }
+  .dot.yellow { background: var(--accent4); }
+  .dot.orange { background: var(--accent6); }
+  .dot.green  { background: var(--accent3); }
+  .dot.purple { background: var(--accent5); }
+  .dot.dark   { background: var(--ink); }
+
+  /* ── Bottom toolbar ───────────────────────────────── */
+  #toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  #grav-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  #grav-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-right: 2px;
+  }
+  .grav-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    background: transparent;
+    border: 1.5px solid #ccc;
+    padding: 5px 12px;
+    border-radius: var(--pill-radius);
+    cursor: pointer;
+    color: #888;
+    transition: all 0.15s;
+  }
+  .grav-btn.active, .grav-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(0,51,255,0.06);
+  }
+
+  #controls {
+    display: flex;
+    gap: 8px;
+  }
+  .ctrl-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1.5px solid var(--ink);
+    padding: 6px 14px;
+    border-radius: var(--pill-radius);
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.15s, color 0.15s;
+  }
+  .ctrl-btn:hover { background: var(--ink); color: var(--bg); }
+</style>
+</head>
+<body>
+<div id="page">
+
+  <!-- Header -->
+  <div id="header">
+    <div id="title">
+      Gravity
+      <span>matter.js physics</span>
+    </div>
+    <div id="meta">
+      Drag to interact<br>
+      Physics simulation<br>
+      DOM + Matter.js
+    </div>
+  </div>
+
+  <!-- Physics box -->
+  <div id="box-wrapper">
+    <div id="box-clip">
+      <canvas id="matter-canvas"></canvas>
+      <!-- physics DOM els injected here by JS -->
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <div id="grav-selector">
+      <span id="grav-label">Gravity:</span>
+      <button class="grav-btn active" data-x="0" data-y="1">↓ Down</button>
+      <button class="grav-btn" data-x="0" data-y="-1">↑ Up</button>
+      <button class="grav-btn" data-x="1" data-y="0">→ Right</button>
+      <button class="grav-btn" data-x="-1" data-y="0">← Left</button>
+      <button class="grav-btn" data-x="0" data-y="0">✕ Zero</button>
+    </div>
+    <div id="controls">
+      <button class="ctrl-btn" id="btn-reset">↺ Reset</button>
+      <button class="ctrl-btn" id="btn-toggle">⏸ Pause</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const { Engine, Render, Runner, Bodies, World, Mouse, MouseConstraint, Events, Query } = Matter;
+
+  const ITEMS = [
+    { html: '<div class="pill dark">matter-js</div>',    x: '25%', y: '12%', type: 'rect' },
+    { html: '<div class="pill red">physics</div>',       x: '60%', y: '8%',  type: 'rect' },
+    { html: '<div class="pill blue">gravity</div>',      x: '45%', y: '18%', type: 'rect', angle: -8 },
+    { html: '<div class="pill green">drag me</div>',     x: '75%', y: '12%', type: 'rect' },
+    { html: '<div class="pill yellow">bounce!</div>',    x: '20%', y: '22%', type: 'rect', angle: 5 },
+    { html: '<div class="pill purple">restitution</div>',x: '55%', y: '26%', type: 'rect' },
+    { html: '<div class="pill orange">friction</div>',   x: '35%', y: '10%', type: 'rect', angle: -5 },
+    { html: '<div class="pill ghost">velocity</div>',    x: '70%', y: '22%', type: 'rect' },
+    { html: '<div class="badge red">Rx</div>',           x: '14%', y: '16%', type: 'rect' },
+    { html: '<div class="badge blue">Ts</div>',          x: '82%', y: '14%', type: 'rect' },
+    { html: '<div class="badge yellow">JS</div>',        x: '50%', y: '6%',  type: 'rect' },
+    { html: '<div class="badge green">CSS</div>',        x: '30%', y: '28%', type: 'rect', angle: 12 },
+    { html: '<div class="badge purple">~</div>',         x: '66%', y: '10%', type: 'rect' },
+    { html: '<div class="dot red"></div>',               x: '10%', y: '14%', type: 'circle' },
+    { html: '<div class="dot blue"></div>',              x: '88%', y: '18%', type: 'circle' },
+    { html: '<div class="dot yellow"></div>',            x: '40%', y: '12%', type: 'circle' },
+    { html: '<div class="dot orange"></div>',            x: '72%', y: '6%',  type: 'circle' },
+    { html: '<div class="dot green"></div>',             x: '18%', y: '30%', type: 'circle' },
+    { html: '<div class="dot purple"></div>',            x: '58%', y: '20%', type: 'circle' },
+    { html: '<div class="dot dark"></div>',              x: '85%', y: '8%',  type: 'circle' },
+  ];
+
+  // The physics box is box-clip; DOM els and canvas live inside it
+  const boxWrapper = document.getElementById('box-wrapper');
+  const boxClip    = document.getElementById('box-clip');
+  const canvas     = document.getElementById('matter-canvas');
+
+  function boxSize() {
+    return { W: boxWrapper.clientWidth, H: boxWrapper.clientHeight };
+  }
+
+  let { W, H } = boxSize();
+
+  // ── Engine ──────────────────────────────────────────────────────────
+  const engine = Engine.create();
+  engine.gravity.x = 0;
+  engine.gravity.y = 1;
+
+  canvas.width  = W;
+  canvas.height = H;
+
+  const render = Render.create({
+    canvas,
+    engine,
+    options: { width: W, height: H, wireframes: false, background: 'transparent' }
+  });
+
+  const runner = Runner.create();
+
+  // ── Walls (relative to box) ─────────────────────────────────────────
+  function makeWalls(w, h) {
+    const t = 20;
+    return [
+      Bodies.rectangle(w/2,  h + t/2,  w + t*2, t,  { isStatic:true, label:'wall', render:{visible:false} }),
+      Bodies.rectangle(w/2,  -t/2,     w + t*2, t,  { isStatic:true, label:'wall', render:{visible:false} }),
+      Bodies.rectangle(-t/2,  h/2,     t, h + t*2,  { isStatic:true, label:'wall', render:{visible:false} }),
+      Bodies.rectangle(w+t/2, h/2,     t, h + t*2,  { isStatic:true, label:'wall', render:{visible:false} }),
+    ];
+  }
+
+  let walls = makeWalls(W, H);
+  World.add(engine.world, walls);
+
+  // ── Bodies registry ─────────────────────────────────────────────────
+  let bodies = [];
+
+  function pct(val, total) {
+    if (typeof val === 'string' && val.endsWith('%'))
+      return (parseFloat(val) / 100) * total;
+    return parseFloat(val) || 0;
+  }
+
+  function spawnElements() {
+    bodies.forEach(b => b.el.remove());
+    bodies = [];
+
+    // First pass: append all wrappers invisibly so the browser lays them out
+    const wrappers = ITEMS.map(item => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'physics-el';
+      wrapper.style.visibility = 'hidden'; // hide during measurement
+      wrapper.innerHTML = item.html;
+      boxClip.appendChild(wrapper);
+      return wrapper;
+    });
+
+    // Force a layout flush so offsetWidth/offsetHeight are accurate
+    void boxClip.offsetHeight;
+
+    // Second pass: measure then create bodies
+    ITEMS.forEach((item, i) => {
+      const wrapper = wrappers[i];
+      const inner = wrapper.firstChild;
+
+      // Use offsetWidth/offsetHeight — these are the actual rendered sizes,
+      // with no page-position contamination like getBoundingClientRect has
+      const w = inner.offsetWidth  || 80;
+      const h = inner.offsetHeight || 40;
+
+      const x = pct(item.x, W);
+      const y = pct(item.y, H);
+      const angle = ((item.angle || 0) * Math.PI) / 180;
+
+      let body;
+      if (item.type === 'circle') {
+        const radius = Math.max(w, h) / 2;
+        body = Bodies.circle(x, y, radius, {
+          friction: 0.3, restitution: 0.45, density: 0.002, angle,
+          render: { fillStyle:'transparent', strokeStyle:'transparent', lineWidth:0 }
+        });
+      } else {
+        body = Bodies.rectangle(x, y, w, h, {
+          friction: 0.3, restitution: 0.35, density: 0.002,
+          chamfer: { radius: 6 }, angle,
+          render: { fillStyle:'transparent', strokeStyle:'transparent', lineWidth:0 }
+        });
+      }
+
+      World.add(engine.world, body);
+      wrapper.style.visibility = ''; // make visible now that body is placed
+      bodies.push({ el: wrapper, body });
+    });
+  }
+
+  // ── Mouse — canvas-local coords ─────────────────────────────────────
+  // Matter reads e.clientX/Y and subtracts mouse.offset. Since our canvas
+  // is not at (0,0) on the page we must continuously correct the position
+  // to be relative to the canvas top-left corner.
+  const mouse = Mouse.create(canvas);
+
+  function fixMousePosition() {
+    const rect = canvas.getBoundingClientRect();
+    mouse.position.x = mouse.absolute.x - rect.left;
+    mouse.position.y = mouse.absolute.y - rect.top;
+  }
+
+  // Run correction in capture phase, after Matter sets mouse.absolute
+  canvas.addEventListener('mousemove',  fixMousePosition, true);
+  canvas.addEventListener('mousedown',  fixMousePosition, true);
+  canvas.addEventListener('mouseup',    fixMousePosition, true);
+
+  const mouseConstraint = MouseConstraint.create(engine, {
+    mouse,
+    constraint: { stiffness: 0.2, damping: 0.1, render: { visible: false } }
+  });
+  World.add(engine.world, mouseConstraint);
+  render.mouse = mouse;
+
+  // Cursor feedback
+  let mouseDown = false;
+  const touching = () => Query.point(
+    engine.world.bodies.filter(b => b.label !== 'wall'),
+    mouse.position
+  ).length > 0;
+
+  Events.on(engine, 'beforeUpdate', () => {
+    if (!mouseDown && !touching()) canvas.style.cursor = 'default';
+    else if (touching())           canvas.style.cursor = mouseDown ? 'grabbing' : 'grab';
+  });
+  canvas.addEventListener('mousedown', () => mouseDown = true);
+  canvas.addEventListener('mouseup',   () => mouseDown = false);
+
+  // ── Sync DOM to physics ─────────────────────────────────────────────
+  let frameId;
+  function syncDOM() {
+    bodies.forEach(({ el, body }) => {
+      const { x, y } = body.position;
+      const deg = body.angle * (180 / Math.PI);
+      const ew = el.offsetWidth;
+      const eh = el.offsetHeight;
+      el.style.transform = `translate(${x - ew/2}px, ${y - eh/2}px) rotate(${deg}deg)`;
+    });
+    frameId = requestAnimationFrame(syncDOM);
+  }
+
+  // ── Controls ────────────────────────────────────────────────────────
+  let running = true;
+  document.getElementById('btn-toggle').addEventListener('click', function() {
+    if (running) {
+      Runner.stop(runner);
+      Render.stop(render);
+      cancelAnimationFrame(frameId);
+      this.textContent = '▶ Play';
+    } else {
+      Runner.run(runner, engine);
+      Render.run(render);
+      syncDOM();
+      this.textContent = '⏸ Pause';
+    }
+    running = !running;
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    bodies.forEach(b => World.remove(engine.world, b.body));
+    spawnElements();
+  });
+
+  document.querySelectorAll('.grav-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.grav-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      engine.gravity.x = parseFloat(this.dataset.x);
+      engine.gravity.y = parseFloat(this.dataset.y);
+    });
+  });
+
+  // ── Resize ──────────────────────────────────────────────────────────
+  let resizeTimer;
+  const ro = new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const size = boxSize();
+      W = size.W; H = size.H;
+
+      canvas.width  = W;
+      canvas.height = H;
+      render.options.width  = W;
+      render.options.height = H;
+      render.canvas.width   = W;
+      render.canvas.height  = H;
+
+      walls.forEach(w => World.remove(engine.world, w));
+      walls = makeWalls(W, H);
+      World.add(engine.world, walls);
+
+      bodies.forEach(b => World.remove(engine.world, b.body));
+      spawnElements();
+    }, 300);
+  });
+  ro.observe(boxWrapper);
+
+  // ── Boot ─────────────────────────────────────────────────────────────
+  spawnElements();
+  Render.run(render);
+  Runner.run(runner, engine);
+  syncDOM();
+
+})();
+</script>
+</body>
+</html>
