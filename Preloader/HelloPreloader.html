@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preloader</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    width:100vw;
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#ffffff;
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+}
+
+.loader{
+    position:relative;
+    width:min(90vw, 500px);
+    height:100px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.word{
+    position:absolute;
+
+    font-size:clamp(2rem, 5vw, 4rem);
+    font-weight:500;
+    letter-spacing:-0.04em;
+    line-height:1;
+
+    white-space:nowrap;
+    text-wrap:nowrap;
+    text-align:center;
+
+    opacity:0;
+    transform:translateY(12px);
+}
+
+.fade-in{
+    animation:show 0.18s ease forwards;
+}
+
+.final{
+    animation:finalShow 0.5s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+@keyframes show{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes finalShow{
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="loader">
+    <div id="text" class="word">Hello</div>
+</div>
+
+<script>
+const greetings = [
+    "नमस्ते",
+    "Bonjour",
+    "Hola",
+    "你好",
+    "こんにちは",
+    "안녕하세요",
+    "Ciao",
+    "Olá",
+    "Hallo",
+    "Merhaba",
+    "Привет",
+    "Hello"
+];
+
+const text = document.getElementById("text");
+
+function setGreeting(word){
+    text.textContent = word;
+
+    if(word.length > 8){
+        text.style.fontSize = "clamp(1.8rem,4vw,3rem)";
+    }else{
+        text.style.fontSize = "clamp(2rem,5vw,4rem)";
+    }
+}
+
+let index = 0;
+let delay = 40;
+
+function animateGreetings(){
+
+    if(index < greetings.length - 1){
+
+        setGreeting(greetings[index]);
+
+        text.className = "word";
+        void text.offsetWidth;
+        text.className = "word fade-in";
+
+        index++;
+
+        delay += 12;
+
+        setTimeout(animateGreetings, delay);
+
+    }else{
+
+        setTimeout(() => {
+
+            setGreeting("Hello");
+
+            text.className = "word";
+            void text.offsetWidth;
+            text.className = "word final";
+
+            // Example: remove loader after a short pause
+            // setTimeout(() => {
+            //     document.body.style.opacity = "0";
+            // }, 600);
+
+        }, delay);
+    }
+}
+
+animateGreetings();
+</script>
+
+</body>
+</html>
