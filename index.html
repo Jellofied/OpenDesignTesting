@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joel's Components*</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg:      oklch(97% 0.003 240);
+      --surface: oklch(100% 0 0);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(88% 0.008 250);
+      --accent:  oklch(50% 0.20 255);
+      --accent-subtle: oklch(95% 0.04 255);
+      --accent-hover:  oklch(44% 0.22 255);
+
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-mono:    'DM Mono', 'SF Mono', monospace;
+
+      --header-h: 56px;
+      --sidebar-w: 260px;
+      --radius: 8px;
+      --shadow: 0 1px 3px oklch(18% 0.012 250 / 0.08), 0 4px 12px oklch(18% 0.012 250 / 0.06);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--fg);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      z-index: 100;
+      box-shadow: 0 1px 0 var(--border);
+    }
+
+    .header-left { display: flex; align-items: center; gap: 1.5rem; }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+
+    .header-logo {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fg);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .header-logo span { color: var(--accent); }
+
+    .repo-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-subtle);
+      border: 1px solid oklch(88% 0.08 255);
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .repo-badge:hover { background: oklch(92% 0.06 255); }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.4rem 0.8rem;
+      gap: 0.5rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-bar:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px oklch(50% 0.20 255 / 0.1);
+    }
+    .search-icon { color: var(--muted); font-size: 0.85rem; }
+    .search-input {
+      background: none;
+      border: none;
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      width: 180px;
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-kbd {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      background: var(--border);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .github-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: var(--fg);
+      text-decoration: none;
+      transition: background 0.15s;
+      font-size: 1.1rem;
+    }
+    .github-link:hover { background: var(--bg); }
+
+    /* ── BODY LAYOUT ── */
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 0.5rem;
+    }
+
+    .folder-count {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .folder-count strong { color: var(--fg); font-weight: 500; }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem 0.75rem;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.875rem;
+      transition: background 0.1s, color 0.1s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--fg); }
+    .nav-item.active {
+      background: var(--accent-subtle);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .nav-item-icon {
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .nav-item.active .nav-item-icon { opacity: 1; }
+
+    .nav-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .nav-item-arrow {
+      font-size: 0.6rem;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    .nav-item:hover .nav-item-arrow,
+    .nav-item.active .nav-item-arrow { opacity: 1; }
+
+    /* Loading / error states */
+    .state-msg {
+      padding: 1.5rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .state-msg .icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CONTENT PANE ── */
+    .content-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .content-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      flex: 1;
+    }
+    .breadcrumb-sep { opacity: 0.4; }
+    .breadcrumb-active { color: var(--fg); font-weight: 500; }
+
+    .toolbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: var(--bg); border-color: oklch(80% 0.01 250); }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .preview-frame-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    iframe#preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Welcome / empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: var(--accent-subtle);
+      border: 1px solid oklch(88% 0.08 255);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .empty-state h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .empty-state p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0;
+      max-width: 340px;
+      line-height: 1.6;
+    }
+
+    /* Config modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(0% 0 0 / 0.35);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      width: 420px;
+      max-width: 90vw;
+      box-shadow: var(--shadow), 0 20px 60px oklch(18% 0.012 250 / 0.15);
+      transform: translateY(8px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal h2 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    .modal p { font-size: 0.85rem; color: var(--muted); margin: 0 0 1.25rem; line-height: 1.5; }
+
+    .field { margin-bottom: 1rem; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--fg);
+      margin-bottom: 0.4rem;
+    }
+    .field input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px oklch(50% 0.20 255 / 0.12);
+    }
+    .field .hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      z-index: 10;
+      transition: opacity 0.2s;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    /* Search filter */
+    .sidebar-search {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sidebar-search input {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .sidebar-search input:focus { border-color: var(--accent); }
+    .sidebar-search input::placeholder { color: var(--muted); }
+
+    /* ── MOBILE MENU BUTTON ── */
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    .mobile-menu-btn:hover { background: var(--bg); border-color: oklch(80% 0.01 250); }
+    .mobile-menu-btn:active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent); }
+
+    /* ── MOBILE DRAWER BACKDROP ── */
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: oklch(0% 0 0 / 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .drawer-backdrop.open { opacity: 1; }
+
+    /* ── MOBILE DRAWER ── */
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 280px;
+      max-width: 85vw;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      z-index: 201;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: 4px 0 24px oklch(18% 0.012 250 / 0.12);
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem 0 1.25rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--fg);
+      letter-spacing: -0.02em;
+    }
+    .drawer-title span { color: var(--accent); }
+
+    .drawer-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .drawer-close:hover { background: var(--bg); color: var(--fg); }
+
+    .drawer-meta {
+      padding: 0.75rem 1.25rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-meta .sidebar-title { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 0.3rem; }
+    .drawer-meta .folder-count-mobile { font-size: 0.78rem; color: var(--muted); }
+    .drawer-meta .folder-count-mobile strong { color: var(--fg); font-weight: 500; }
+
+    .drawer-search {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-search input {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .drawer-search input:focus { border-color: var(--accent); }
+    .drawer-search input::placeholder { color: var(--muted); }
+
+    .drawer-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+    }
+    .drawer-nav::-webkit-scrollbar { width: 4px; }
+    .drawer-nav::-webkit-scrollbar-track { background: transparent; }
+    .drawer-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    @media (max-width: 768px) {
+      .search-bar { display: none; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { display: none; }
+      .mobile-menu-btn { display: flex; }
+      .drawer-backdrop { display: block; pointer-events: none; }
+      .mobile-drawer { display: flex; }
+      /* Ensure repo badge text is truncated on small screens */
+      #repoName { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="header-left">
+      <!-- Mobile menu toggle -->
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <a href="#" class="header-logo">Joel's Components<span>*</span></a>
+      <button class="repo-badge" id="repoBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span id="repoName">Jellofied/OpenDesignTesting</span>
+      </button>
+    </div>
+    <div class="header-right">
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+        <input type="text" class="search-input" placeholder="Search docs…" id="globalSearch">
+        <span class="search-kbd">⌘K</span>
+      </div>
+      <a href="#" class="github-link" id="githubLink" target="_blank" title="View on GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <div class="main-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <p class="sidebar-title">Components</p>
+        <p class="folder-count" id="folderCount"><span class="spinner"></span></p>
+      </div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="Filter…" id="filterInput">
+      </div>
+      <nav class="sidebar-nav" id="sidebarNav">
+        <div class="state-msg">
+          <span class="spinner" style="margin:auto;display:block"></span>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- CONTENT PANE -->
+    <div class="content-pane">
+      <div class="content-toolbar" id="toolbar" style="display:none">
+        <div class="breadcrumb">
+          <span id="breadcrumbRepo">—</span>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-active" id="breadcrumbFolder">—</span>
+        </div>
+        <div class="toolbar-actions">
+          <a href="#" class="btn" id="openGhLink" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            GitHub
+          </a>
+          <a href="#" class="btn btn-primary" id="openRawLink" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+      </div>
+
+      <div class="preview-frame-wrap" id="previewWrap">
+
+        <!-- WELCOME STATE -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon">✦</div>
+          <h2>Joel's Components*</h2>
+          <p>Select a component from the sidebar to preview it here.</p>
+        </div>
+
+        <!-- LOADING OVERLAY -->
+        <div class="loading-overlay hidden" id="loadingOverlay">
+          <div class="spinner"></div>
+          <span id="loadingMsg">Loading preview…</span>
+        </div>
+
+        <!-- IFRAME -->
+        <iframe id="preview" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONFIG MODAL ── -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>Change Repository</h2>
+      <p>Enter a different GitHub username and repository name to browse. Defaults to <code>Jellofied/OpenDesignTesting</code>.</p>
+
+      <div class="field">
+        <label>GitHub Username</label>
+        <input type="text" id="inputUser" placeholder="e.g. octocat">
+      </div>
+      <div class="field">
+        <label>Repository Name</label>
+        <input type="text" id="inputRepo" placeholder="e.g. my-components">
+        <p class="hint">Your GitHub Pages URL will be: <code>https://&lt;user&gt;.github.io/&lt;repo&gt;/</code></p>
+      </div>
+      <div class="field">
+        <label>Branch (optional)</label>
+        <input type="text" id="inputBranch" placeholder="main">
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveConfig()">Load Repository</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MOBILE DRAWER ── -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="mobile-drawer" id="mobileDrawer" aria-label="Components menu">
+    <div class="drawer-header">
+      <span class="drawer-title">Joel's Components<span>*</span></span>
+      <button class="drawer-close" id="drawerCloseBtn" aria-label="Close menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="4" y1="4" x2="20" y2="20"/>
+          <line x1="20" y1="4" x2="4" y2="20"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-meta">
+      <p class="sidebar-title">Components</p>
+      <p class="folder-count-mobile" id="folderCountMobile"><span class="spinner"></span></p>
+    </div>
+    <div class="drawer-search">
+      <input type="text" placeholder="Filter…" id="filterInputMobile">
+    </div>
+    <nav class="drawer-nav" id="drawerNav">
+      <div class="state-msg">
+        <span class="spinner" style="margin:auto;display:block"></span>
+      </div>
+    </nav>
+  </aside>
+
+  <script>
+    // ── STATE ──────────────────────────────────────────────────
+    const DEFAULT_CONFIG = { user: 'Jellofied', repo: 'OpenDesignTesting', branch: 'main' };
+    let config = JSON.parse(localStorage.getItem('fc_config') || 'null') || DEFAULT_CONFIG;
+    let allFolders = [];
+    let activeFolder = null;
+
+    // ── INIT ──────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Keyboard shortcut for search
+      document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          document.getElementById('globalSearch').focus();
+        }
+        if (e.key === 'Escape') closeDrawer();
+      });
+
+      document.getElementById('globalSearch').addEventListener('input', e => {
+        document.getElementById('filterInput').value = e.target.value;
+        filterFolders(e.target.value);
+      });
+
+      document.getElementById('filterInput').addEventListener('input', e => {
+        filterFolders(e.target.value);
+      });
+
+      // Mobile drawer filter
+      document.getElementById('filterInputMobile').addEventListener('input', e => {
+        filterFoldersMobile(e.target.value);
+      });
+
+      document.getElementById('repoBtn').addEventListener('click', openModal);
+
+      // Mobile drawer toggle
+      document.getElementById('mobileMenuBtn').addEventListener('click', openDrawer);
+      document.getElementById('drawerCloseBtn').addEventListener('click', closeDrawer);
+      document.getElementById('drawerBackdrop').addEventListener('click', closeDrawer);
+
+      // Always load on startup
+      applyConfig(config, false);
+    });
+
+    // ── MODAL ────────────────────────────────────────────────
+    function openModal() {
+      document.getElementById('inputUser').value = config.user || DEFAULT_CONFIG.user;
+      document.getElementById('inputRepo').value = config.repo || DEFAULT_CONFIG.repo;
+      document.getElementById('inputBranch').value = config.branch || DEFAULT_CONFIG.branch;
+      document.getElementById('modalOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('inputUser').focus(), 100);
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+
+    function saveConfig() {
+      const user   = document.getElementById('inputUser').value.trim();
+      const repo   = document.getElementById('inputRepo').value.trim();
+      const branch = document.getElementById('inputBranch').value.trim() || 'main';
+
+      if (!user || !repo) {
+        document.getElementById('inputRepo').focus();
+        return;
+      }
+
+      config = { user, repo, branch };
+      localStorage.setItem('fc_config', JSON.stringify(config));
+      closeModal();
+      applyConfig(config, true);
+    }
+
+    // ── MOBILE DRAWER ────────────────────────────────────────
+    function openDrawer() {
+      const drawer   = document.getElementById('mobileDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const btn      = document.getElementById('mobileMenuBtn');
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+      backdrop.style.pointerEvents = 'auto';
+      btn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      const drawer   = document.getElementById('mobileDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      const btn      = document.getElementById('mobileMenuBtn');
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+      setTimeout(() => { backdrop.style.pointerEvents = 'none'; }, 250);
+      btn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+
+    async function applyConfig(cfg, refresh) {
+      document.getElementById('repoName').textContent = `${cfg.user}/${cfg.repo}`;
+      document.getElementById('githubLink').href = `https://github.com/${cfg.user}/${cfg.repo}`;
+      document.getElementById('breadcrumbRepo').textContent = cfg.repo;
+      document.getElementById('folderCount').innerHTML = '<span class="spinner"></span> Loading…';
+      document.getElementById('folderCountMobile').innerHTML = '<span class="spinner"></span>';
+
+      await loadFolders(cfg);
+    }
+
+    async function loadFolders(cfg) {
+      const nav = document.getElementById('sidebarNav');
+      nav.innerHTML = '<div class="state-msg"><span class="spinner" style="margin:auto;display:block"></span><br>Fetching folders…</div>';
+
+      try {
+        const apiUrl = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/git/trees/${cfg.branch}?recursive=1`;
+        const res = await fetch(apiUrl, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+
+        if (!res.ok) throw new Error(`GitHub API ${res.status}: ${res.statusText}`);
+
+        const data = await res.json();
+
+        // Find folders that have an index.html inside them (top-level folders only)
+        const htmlFiles = new Set(
+          data.tree
+            .filter(f => f.type === 'blob' && f.path.endsWith('/index.html'))
+            .map(f => f.path.split('/')[0])
+        );
+
+        // Also grab any top-level folder (even without index.html) — but only show ones with index.html for previewing
+        // Folders = items with type 'tree' at depth 1
+        const topFolders = data.tree
+          .filter(f => f.type === 'tree' && !f.path.includes('/'))
+          .map(f => f.path)
+          .filter(name => htmlFiles.has(name))
+          .sort((a, b) => a.localeCompare(b));
+
+        allFolders = topFolders;
+
+        const countHtml = `<strong>${topFolders.length}</strong> component${topFolders.length !== 1 ? 's' : ''}`;
+        document.getElementById('folderCount').innerHTML = countHtml;
+        document.getElementById('folderCountMobile').innerHTML = countHtml;
+
+        renderNav(topFolders, cfg);
+        renderDrawerNav(topFolders, cfg);
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('folderCount').textContent = 'Error loading';
+        nav.innerHTML = `<div class="state-msg">
+          <span class="icon">⚠️</span>
+          Could not fetch the repository.<br><small>${err.message}</small>
+          <br><br>
+          <button class="btn" onclick="openModal()">Reconfigure</button>
+        </div>`;
+      }
+    }
+
+    function renderNav(folders, cfg, filter = '') {
+      const nav = document.getElementById('sidebarNav');
+      const visible = filter
+        ? folders.filter(f => f.toLowerCase().includes(filter.toLowerCase()))
+        : folders;
+
+      if (visible.length === 0) {
+        nav.innerHTML = `<div class="state-msg">No folders match "<em>${filter}</em>"</div>`;
+        return;
+      }
+
+      nav.innerHTML = '';
+      visible.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-item' + (name === activeFolder ? ' active' : '');
+        btn.dataset.folder = name;
+        btn.innerHTML = `
+          <span class="nav-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="nav-item-label">${name}</span>
+          <span class="nav-item-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => loadPreview(name, cfg));
+        nav.appendChild(btn);
+      });
+    }
+
+    function renderDrawerNav(folders, cfg, filter = '') {
+      const nav = document.getElementById('drawerNav');
+      const visible = filter
+        ? folders.filter(f => f.toLowerCase().includes(filter.toLowerCase()))
+        : folders;
+
+      if (visible.length === 0) {
+        nav.innerHTML = `<div class="state-msg">No folders match "<em>${filter}</em>"</div>`;
+        return;
+      }
+
+      nav.innerHTML = '';
+      visible.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-item' + (name === activeFolder ? ' active' : '');
+        btn.dataset.folder = name;
+        btn.innerHTML = `
+          <span class="nav-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="nav-item-label">${name}</span>
+          <span class="nav-item-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => {
+          loadPreview(name, cfg);
+          closeDrawer();
+        });
+        nav.appendChild(btn);
+      });
+    }
+
+    function filterFoldersMobile(query) {
+      if (!config) return;
+      renderDrawerNav(allFolders, config, query);
+    }
+
+    function filterFolders(query) {
+      if (!config) return;
+      renderNav(allFolders, config, query);
+    }
+
+    // ── PREVIEW ──────────────────────────────────────────────
+    async function loadPreview(folder, cfg) {
+      activeFolder = folder;
+
+      // Update sidebar + drawer active state
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.folder === folder);
+      });
+
+      // Show toolbar
+      document.getElementById('toolbar').style.display = 'flex';
+      document.getElementById('breadcrumbFolder').textContent = folder;
+
+      // Build URLs
+      const pagesBase  = `https://${cfg.user}.github.io/${cfg.repo}`;
+      const ghFileLink = `https://github.com/${cfg.user}/${cfg.repo}/tree/${cfg.branch}/${folder}`;
+      const previewUrl = `${pagesBase}/${folder}/index.html`;
+
+      document.getElementById('openGhLink').href  = ghFileLink;
+      document.getElementById('openRawLink').href = previewUrl;
+
+      // Show loading
+      const iframe       = document.getElementById('preview');
+      const emptyState   = document.getElementById('emptyState');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+
+      emptyState.style.display = 'none';
+      iframe.style.display     = 'none';
+      loadingOverlay.classList.remove('hidden');
+      document.getElementById('loadingMsg').textContent = `Loading ${folder}…`;
+
+      // Load iframe
+      iframe.src = '';
+      iframe.onload = () => {
+        loadingOverlay.classList.add('hidden');
+        iframe.style.display = 'block';
+      };
+      iframe.onerror = () => {
+        loadingOverlay.classList.add('hidden');
+        iframe.style.display = 'block';
+      };
+      iframe.src = previewUrl;
+
+      // Fallback: if onload doesn't fire (cross-origin), just show after a delay
+      setTimeout(() => {
+        if (!loadingOverlay.classList.contains('hidden')) {
+          loadingOverlay.classList.add('hidden');
+          iframe.style.display = 'block';
+        }
+      }, 4000);
+    }
+  </script>
+</body>
+</html>

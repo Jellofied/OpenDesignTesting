@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Between Text — Portfolio Component</title>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+  <style>
+    :root {
+      --bg:      oklch(99% 0.002 240);
+      --surface: oklch(100% 0 0);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(92% 0.005 250);
+      --accent:  oklch(58% 0.18 255);
+
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 0;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 3rem;
+    }
+
+    /* Component specific styles */
+    .media-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      vertical-align: middle;
+    }
+
+    .tweaks-panel {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      z-index: 100;
+      width: 280px;
+    }
+
+    .tweaks-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tweak-group {
+      margin-bottom: 1rem;
+    }
+
+    .tweak-label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tweak-select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      background: var(--bg);
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--fg);
+      color: white;
+      border-color: var(--fg);
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+      width: 100%;
+    }
+
+    .demo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: left;
+    }
+
+    .demo-card h4 {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    [data-framer-appear-id] {
+      display: contents;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, forwardRef, useImperativeHandle } = React;
+    const { motion, AnimatePresence, useInView } = window.Motion || window.framerMotion;
+
+    // --- Component Definition ---
+    const MediaBetweenText = forwardRef(({
+      firstText,
+      secondText,
+      mediaUrl,
+      mediaType,
+      mediaContainerClassName,
+      as = "span",
+      triggerType = "hover",
+      animationVariants,
+      className,
+      leftTextClassName,
+      rightTextClassName,
+    }, ref) => {
+      const componentRef = useRef(null);
+      const [isAnimating, setIsAnimating] = useState(false);
+      const [isHovered, setIsHovered] = useState(false);
+
+      const isInView = useInView(componentRef, { amount: 0.5, once: false });
+
+      useImperativeHandle(ref, () => ({
+        animate: () => setIsAnimating(true),
+        reset: () => setIsAnimating(false),
+      }));
+
+      const shouldAnimate = 
+        triggerType === "hover" ? isHovered :
+        triggerType === "inView" ? isInView :
+        triggerType === "ref" ? isAnimating : false;
+
+      const defaultVariants = {
+        initial: { width: 0, opacity: 0, margin: "0px" },
+        animate: { 
+          width: "auto", 
+          opacity: 1,
+          margin: "0 0.2em",
+          transition: { duration: 0.4, type: "spring", bounce: 0 } 
+        }
+      };
+
+      const MotionText = motion[as] || motion.span;
+
+      return (
+        <span 
+          ref={componentRef}
+          className={`inline-flex items-center align-middle ${className || ''}`}
+          onMouseEnter={() => triggerType === "hover" && setIsHovered(true)}
+          onMouseLeave={() => triggerType === "hover" && setIsHovered(false)}
+        >
+          <MotionText layout className={leftTextClassName} style={{ display: 'inline-block' }}>
+            {firstText}
+          </MotionText>
+          <motion.span
+            className={`media-container overflow-hidden ${mediaContainerClassName || ''}`}
+            variants={animationVariants || defaultVariants}
+            initial="initial"
+            animate={shouldAnimate ? "animate" : "initial"}
+            style={{ display: 'inline-flex', verticalAlign: 'middle' }}
+          >
+            {mediaType === "video" ? (
+              <video 
+                src={mediaUrl} 
+                autoPlay muted loop playsInline 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <img 
+                src={mediaUrl} 
+                alt="" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
+          </motion.span>
+          <MotionText layout className={rightTextClassName} style={{ display: 'inline-block' }}>
+            {secondText}
+          </MotionText>
+        </span>
+      );
+    });
+
+    // --- Main Application ---
+    const App = () => {
+      const manualRef = useRef(null);
+      const [trigger, setTrigger] = useState("hover");
+      const [accentColor, setAccentColor] = useState("#3b82f6");
+
+      const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+        "triggerType": "hover",
+        "accent": "oklch(58% 0.18 255)"
+      }/*EDITMODE-END*/;
+
+      return (
+        <main className="container">
+          <section className="hero">
+            <div className="hero-eyebrow">Interaction Block #042</div>
+            <h1 className="hero-title" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)' }}>
+              <MediaBetweenText 
+                firstText="Crafting ("
+                secondText=") experiences"
+                mediaUrl="https://cdn.cosmos.so/90e2192e-7bd4-44af-96ae-05cd955c0cfb?format=jpeg"
+                mediaType="image"
+                triggerType={trigger}
+                mediaContainerClassName="mx-2 mt-2 h-[0.8em]"
+                animationVariants={{
+                  initial: { width: 0, opacity: 0, scale: 0.8 },
+                  animate: { width: "1.2em", opacity: 1, scale: 1, transition: { type: "spring", bounce: 0.2, duration: 0.6 } }
+                }}
+              />
+            </h1>
+            <p className="hero-subtitle">
+              A performant, interactive media-injection component for modern web layouts. 
+              Supports multiple trigger states and fluid layout transitions.
+            </p>
+            
+            <div className="demo-grid">
+              <div className="demo-card">
+                <h4>01 · Hover State</h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
+                  <MediaBetweenText 
+                    firstText="Check out this "
+                    secondText=" chair"
+                    mediaUrl="https://cdn.cosmos.so/90e2192e-7bd4-44af-96ae-05cd955c0cfb?format=jpeg"
+                    mediaType="image"
+                    triggerType="hover"
+                    mediaContainerClassName="mx-2 h-[1.2rem] mt-1"
+                    animationVariants={{
+                      initial: { width: 0 },
+                      animate: { width: "3rem" }
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="demo-card">
+                <h4>02 · Scroll (In View)</h4>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
+                  <MediaBetweenText 
+                    firstText="Reveals on "
+                    secondText=" scroll"
+                    mediaUrl="https://cdn.cosmos.so/53454cbe-a4ec-4782-923f-a82d70e12645.mp4"
+                    mediaType="video"
+                    triggerType="inView"
+                    mediaContainerClassName="mx-2 h-[1.2rem] mt-1"
+                    animationVariants={{
+                      initial: { width: 0, opacity: 0 },
+                      animate: { width: "4rem", opacity: 1 }
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="demo-card">
+                <h4>03 · Manual Control</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
+                    <MediaBetweenText 
+                      ref={manualRef}
+                      firstText="Click to "
+                      secondText=" open"
+                      mediaUrl="https://cdn.cosmos.so/444e4a2a-45a6-477f-b342-6b6bc9a7c53b.mp4"
+                      mediaType="video"
+                      triggerType="ref"
+                      mediaContainerClassName="mx-2 h-[1.2rem] mt-1"
+                    />
+                  </div>
+                  <button className="btn" onClick={() => manualRef.current?.animate()}>Animate</button>
+                  <button className="btn" onClick={() => manualRef.current?.reset()}>Reset</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside className="tweaks-panel">
+            <div className="tweaks-title">
+              <span>Tweaks</span>
+              <span style={{ opacity: 0.5 }}>v1.0</span>
+            </div>
+            <div className="tweak-group">
+              <label className="tweak-label">Hero Trigger Type</label>
+              <select 
+                className="tweak-select" 
+                value={trigger} 
+                onChange={(e) => setTrigger(e.target.value)}
+              >
+                <option value="hover">Hover</option>
+                <option value="inView">In View</option>
+                <option value="ref">Manual (Ref)</option>
+              </select>
+            </div>
+            <div className="tweak-group">
+              <label className="tweak-label">Hero Copy</label>
+              <p style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                "Crafting (media) experiences"
+              </p>
+            </div>
+            {trigger === 'ref' && (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => manualRef.current?.animate()}>Open</button>
+                <button className="btn" style={{ flex: 1 }} onClick={() => manualRef.current?.reset()}>Close</button>
+              </div>
+            )}
+          </aside>
+        </main>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
