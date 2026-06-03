@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>fancy components*</title>
+  <title>Joel's Components*</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
 
@@ -472,10 +472,10 @@
   <!-- ── HEADER ── -->
   <header class="header">
     <div class="header-left">
-      <a href="#" class="header-logo">fancy components<span>*</span></a>
+      <a href="#" class="header-logo">Joel's Components<span>*</span></a>
       <button class="repo-badge" id="repoBtn">
-        <span>📁</span>
-        <span id="repoName">configure repo</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span id="repoName">Jellofied/OpenDesignTesting</span>
       </button>
     </div>
     <div class="header-right">
@@ -506,8 +506,7 @@
       </div>
       <nav class="sidebar-nav" id="sidebarNav">
         <div class="state-msg">
-          <span class="icon">🔧</span>
-          Configure your repo to get started.
+          <span class="spinner" style="margin:auto;display:block"></span>
         </div>
       </nav>
     </aside>
@@ -537,9 +536,8 @@
         <!-- WELCOME STATE -->
         <div class="empty-state" id="emptyState">
           <div class="empty-state-icon">✦</div>
-          <h2>Your Component Library</h2>
-          <p>Click <strong>configure repo</strong> above to point this page at your GitHub repository. Each folder with an <code>index.html</code> will appear in the sidebar.</p>
-          <button class="btn btn-primary" onclick="openModal()">Configure Repo</button>
+          <h2>Joel's Components*</h2>
+          <p>Select a component from the sidebar to preview it here.</p>
         </div>
 
         <!-- LOADING OVERLAY -->
@@ -557,8 +555,8 @@
   <!-- ── CONFIG MODAL ── -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-      <h2>Configure Repository</h2>
-      <p>Enter your GitHub username and repository name. This page will list all folders containing an <code>index.html</code>.</p>
+      <h2>Change Repository</h2>
+      <p>Enter a different GitHub username and repository name to browse. Defaults to <code>Jellofied/OpenDesignTesting</code>.</p>
 
       <div class="field">
         <label>GitHub Username</label>
@@ -583,7 +581,8 @@
 
   <script>
     // ── STATE ──────────────────────────────────────────────────
-    let config = JSON.parse(localStorage.getItem('fc_config') || 'null');
+    const DEFAULT_CONFIG = { user: 'Jellofied', repo: 'OpenDesignTesting', branch: 'main' };
+    let config = JSON.parse(localStorage.getItem('fc_config') || 'null') || DEFAULT_CONFIG;
     let allFolders = [];
     let activeFolder = null;
 
@@ -608,21 +607,15 @@
 
       document.getElementById('repoBtn').addEventListener('click', openModal);
 
-      // Pre-fill modal if config exists
-      if (config) {
-        applyConfig(config, false);
-      } else {
-        document.getElementById('folderCount').textContent = 'No repo configured';
-      }
+      // Always load on startup
+      applyConfig(config, false);
     });
 
     // ── MODAL ────────────────────────────────────────────────
     function openModal() {
-      if (config) {
-        document.getElementById('inputUser').value = config.user || '';
-        document.getElementById('inputRepo').value = config.repo || '';
-        document.getElementById('inputBranch').value = config.branch || '';
-      }
+      document.getElementById('inputUser').value = config.user || DEFAULT_CONFIG.user;
+      document.getElementById('inputRepo').value = config.repo || DEFAULT_CONFIG.repo;
+      document.getElementById('inputBranch').value = config.branch || DEFAULT_CONFIG.branch;
       document.getElementById('modalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('inputUser').focus(), 100);
     }
@@ -726,7 +719,7 @@
         btn.className = 'nav-item' + (name === activeFolder ? ' active' : '');
         btn.dataset.folder = name;
         btn.innerHTML = `
-          <span class="nav-item-icon">📂</span>
+          <span class="nav-item-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
           <span class="nav-item-label">${name}</span>
           <span class="nav-item-arrow">›</span>
         `;
