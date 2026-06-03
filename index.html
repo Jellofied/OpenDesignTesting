@@ -3,399 +3,794 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fancy Components</title>
+  <title>fancy components*</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
+
     :root {
-      /* Modern Minimal Palette */
-      --bg:      oklch(99% 0.002 240); /* Light background for contrast */
-      --surface: oklch(100% 0 0); /* Pure white surface, used for cards etc. */
-      --fg:      oklch(18% 0.012 250); /* Dark foreground for text */
-      --muted:   oklch(54% 0.012 250); /* Muted text/icons */
-      --border:  oklch(92% 0.005 250); /* Hairline borders */
-      --accent:  oklch(58% 0.18 255); /* Electric blue accent */
+      --bg:      oklch(97% 0.003 240);
+      --surface: oklch(100% 0 0);
+      --fg:      oklch(18% 0.012 250);
+      --muted:   oklch(54% 0.012 250);
+      --border:  oklch(88% 0.008 250);
+      --accent:  oklch(50% 0.20 255);
+      --accent-subtle: oklch(95% 0.04 255);
+      --accent-hover:  oklch(44% 0.22 255);
 
-      /* Dark mode overrides for Modern Minimal */
-      --bg-dark:      oklch(10% 0.005 250);
-      --surface-dark: oklch(15% 0.01 250);
-      --fg-dark:      oklch(90% 0.005 250);
-      --muted-dark:   oklch(60% 0.005 250);
-      --border-dark:  oklch(20% 0.005 250);
-      --accent-dark:  oklch(58% 0.18 255); /* Accent remains bright */
+      --font-display: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --font-mono:    'DM Mono', 'SF Mono', monospace;
 
-
-      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+      --header-h: 56px;
+      --sidebar-w: 260px;
+      --radius: 8px;
+      --shadow: 0 1px 3px oklch(18% 0.012 250 / 0.08), 0 4px 12px oklch(18% 0.012 250 / 0.06);
     }
+
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: var(--font-body);
-      color: var(--fg-dark); /* Using dark mode foreground by default */
-      background-color: var(--bg-dark); /* Using dark mode background by default */
+      color: var(--fg);
+      background: var(--bg);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
-    /* Basic layout for responsiveness */
-    .container {
-      display: flex;
-      flex-grow: 1;
-    }
-
+    /* ── HEADER ── */
     .header {
+      height: var(--header-h);
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 1rem 2rem;
-      border-bottom: 1px solid var(--border-dark);
-      background-color: var(--surface-dark);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      z-index: 100;
+      box-shadow: 0 1px 0 var(--border);
     }
 
-    .header-left, .header-right {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
+    .header-left { display: flex; align-items: center; gap: 1.5rem; }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
 
     .header-logo {
       font-family: var(--font-display);
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--fg-dark);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fg);
       text-decoration: none;
+      letter-spacing: -0.02em;
     }
+    .header-logo span { color: var(--accent); }
 
-    .nav-link {
-      color: var(--muted-dark);
-      text-decoration: none;
-      font-size: 0.9rem;
+    .repo-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-subtle);
+      border: 1px solid oklch(88% 0.08 255);
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background 0.15s;
     }
-
-    .nav-link:hover {
-      color: var(--fg-dark);
-    }
+    .repo-badge:hover { background: oklch(92% 0.06 255); }
 
     .search-bar {
       display: flex;
       align-items: center;
-      background-color: var(--bg-dark);
-      border: 1px solid var(--border-dark);
-      border-radius: 6px;
-      padding: 0.5rem 0.8rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.4rem 0.8rem;
       gap: 0.5rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-
+    .search-bar:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px oklch(50% 0.20 255 / 0.1);
+    }
+    .search-icon { color: var(--muted); font-size: 0.85rem; }
     .search-input {
       background: none;
       border: none;
-      color: var(--fg-dark);
-      font-size: 0.9rem;
-      width: 150px;
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      width: 180px;
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-kbd {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      background: var(--border);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
     }
 
-    .search-input::placeholder {
-      color: var(--muted-dark);
+    .github-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: var(--fg);
+      text-decoration: none;
+      transition: background 0.15s;
+      font-size: 1.1rem;
     }
+    .github-link:hover { background: var(--bg); }
 
-    .github-icon, .theme-toggle {
-      color: var(--fg-dark);
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-
-    /* Main content layout */
+    /* ── BODY LAYOUT ── */
     .main-wrapper {
       display: flex;
-      flex-grow: 1;
+      flex: 1;
+      overflow: hidden;
     }
 
+    /* ── SIDEBAR ── */
     .sidebar {
-      width: 280px;
-      padding: 2rem;
-      border-right: 1px solid var(--border-dark);
-      flex-shrink: 0;
-      overflow-y: auto;
-      background-color: var(--bg-dark);
-    }
-
-    .sidebar h2, .sidebar h3 {
-      color: var(--fg-dark);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      font-family: var(--font-display);
-    }
-
-    .sidebar h2 { font-size: 1.2rem; }
-    .sidebar h3 { font-size: 1rem; }
-
-
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .sidebar li {
-      margin-bottom: 0.5rem;
-    }
-
-    .sidebar a {
-      color: var(--muted-dark);
-      text-decoration: none;
-      font-size: 0.9rem;
-      display: block;
-      padding: 0.2rem 0;
-    }
-
-    .sidebar a:hover, .sidebar a.active {
-      color: var(--fg-dark);
-    }
-
-
-    .content-area {
-      flex-grow: 1;
-      padding: 2rem;
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
       display: flex;
-      gap: 2rem;
-    }
-
-    .article-content {
-      flex-grow: 1;
-      max-width: 800px; /* Limit content width for readability */
-    }
-
-    .on-this-page {
-      width: 200px;
+      flex-direction: column;
       flex-shrink: 0;
-      position: sticky;
-      top: 2rem; /* Adjust based on header height */
-      align-self: flex-start;
-      padding-left: 1rem;
-      border-left: 1px solid var(--border-dark); /* Border for separator */
+      overflow: hidden;
     }
 
-    .on-this-page h3 {
-      font-family: var(--font-display);
-      color: var(--fg-dark);
-      margin-top: 0;
-      margin-bottom: 1rem;
-      font-size: 1rem;
+    .sidebar-header {
+      padding: 1rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
-    .on-this-page ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .sidebar-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 0.5rem;
     }
 
-    .on-this-page li {
-      margin-bottom: 0.5rem;
+    .folder-count {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .folder-count strong { color: var(--fg); font-weight: 500; }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem 0.75rem;
     }
 
-    .on-this-page a {
-      color: var(--muted-dark);
-      text-decoration: none;
-      font-size: 0.85rem;
-      display: block;
-      padding: 0.2rem 0;
-    }
+    .sidebar-nav::-webkit-scrollbar { width: 4px; }
+    .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    .on-this-page a:hover {
-      color: var(--fg-dark);
-    }
-
-
-    /* Typography for demonstration */
-    h1, h2, h3, h4, h5, h6 {
-      font-family: var(--font-display);
-      color: var(--fg-dark);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    h1 { font-size: 2.5rem; }
-    h2 { font-size: 2rem; }
-    p { margin-bottom: 1rem; line-height: 1.6; }
-    a { color: var(--accent-dark); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    pre {
-      background-color: var(--surface-dark);
-      border: 1px solid var(--border-dark);
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.6rem;
       border-radius: 6px;
-      padding: 1rem;
-      overflow-x: auto;
-      margin-bottom: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.875rem;
+      transition: background 0.1s, color 0.1s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--fg); }
+    .nav-item.active {
+      background: var(--accent-subtle);
+      color: var(--accent);
+      font-weight: 500;
     }
 
-    code {
-      font-family: 'SF Mono', 'Segoe UI Mono', monospace;
-      color: var(--fg-dark);
+    .nav-item-icon {
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .nav-item.active .nav-item-icon { opacity: 1; }
+
+    .nav-item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .nav-item-arrow {
+      font-size: 0.6rem;
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    .nav-item:hover .nav-item-arrow,
+    .nav-item.active .nav-item-arrow { opacity: 1; }
+
+    /* Loading / error states */
+    .state-msg {
+      padding: 1.5rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .state-msg .icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CONTENT PANE ── */
+    .content-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .content-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      flex: 1;
+    }
+    .breadcrumb-sep { opacity: 0.4; }
+    .breadcrumb-active { color: var(--fg); font-weight: 500; }
+
+    .toolbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: var(--bg); border-color: oklch(80% 0.01 250); }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .preview-frame-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    iframe#preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Welcome / empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: var(--accent-subtle);
+      border: 1px solid oklch(88% 0.08 255);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .empty-state h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .empty-state p {
       font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0;
+      max-width: 340px;
+      line-height: 1.6;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 1024px) {
-      .on-this-page {
-        display: none; /* Hide on smaller screens to save space */
-      }
-      .content-area {
-        gap: 0; /* Remove gap when on-this-page is hidden */
-      }
+    /* Config modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(0% 0 0 / 0.35);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
     }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      width: 420px;
+      max-width: 90vw;
+      box-shadow: var(--shadow), 0 20px 60px oklch(18% 0.012 250 / 0.15);
+      transform: translateY(8px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal h2 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--fg);
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    .modal p { font-size: 0.85rem; color: var(--muted); margin: 0 0 1.25rem; line-height: 1.5; }
+
+    .field { margin-bottom: 1rem; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--fg);
+      margin-bottom: 0.4rem;
+    }
+    .field input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px oklch(50% 0.20 255 / 0.12);
+    }
+    .field .hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      z-index: 10;
+      transition: opacity 0.2s;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    /* Search filter */
+    .sidebar-search {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sidebar-search input {
+      width: 100%;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .sidebar-search input:focus { border-color: var(--accent); }
+    .sidebar-search input::placeholder { color: var(--muted); }
 
     @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 1rem;
-      }
-
-      .header-right {
-        width: 100%;
-        justify-content: space-between;
-        gap: 1rem;
-      }
-
-      .search-bar {
-        flex-grow: 1;
-        width: auto;
-      }
-
-      .search-input {
-        width: auto;
-        flex-grow: 1;
-      }
-
-      .main-wrapper {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-dark);
-        padding: 1rem;
-      }
-
-      .content-area {
-        padding: 1rem;
-      }
+      :root { --sidebar-w: 200px; }
+      .search-bar { display: none; }
+    }
+    @media (max-width: 560px) {
+      .sidebar { display: none; }
     }
   </style>
 </head>
 <body>
+
+  <!-- ── HEADER ── -->
   <header class="header">
     <div class="header-left">
-      <a href="#" class="header-logo">fancy components*</a>
-      <a href="#" class="nav-link">Docs</a>
-      <a href="#" class="nav-link">Components</a>
+      <a href="#" class="header-logo">fancy components<span>*</span></a>
+      <button class="repo-badge" id="repoBtn">
+        <span>📁</span>
+        <span id="repoName">configure repo</span>
+      </button>
     </div>
     <div class="header-right">
       <div class="search-bar">
-        <span>🔍</span>
-        <input type="text" class="search-input" placeholder="Search docs...">
-        <span style="color: var(--muted-dark); font-size: 0.8rem;">Ctrl K</span>
+        <span class="search-icon">⌕</span>
+        <input type="text" class="search-input" placeholder="Search docs…" id="globalSearch">
+        <span class="search-kbd">⌘K</span>
       </div>
-      <a href="#" class="github-icon">🐙</a> <!-- Placeholder for GitHub icon -->
-      <span class="theme-toggle">💡</span> <!-- Placeholder for theme toggle -->
+      <a href="#" class="github-link" id="githubLink" target="_blank" title="View on GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
     </div>
   </header>
 
+  <!-- ── MAIN ── -->
   <div class="main-wrapper">
+
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-      <h2>Getting Started</h2>
-      <nav>
-        <ul>
-          <li><a href="#">Introduction</a></li>
-          <li><a href="#">Installation</a></li>
-          <li><a href="#">Components</a></li>
-          <li><a href="#">Changelog</a></li>
-          <li><a href="#">Ilms.txt</a></li>
-        </ul>
-      </nav>
-      <h3>Text (20)</h3>
-      <nav>
-        <ul>
-          <li><a href="#">Letter Swap Hover</a></li>
-          <li><a href="#">Letter 3D Swap</a></li>
-          <li><a href="#">Random Letter Swap Hover</a></li>
-          <li><a href="#">Vertical Cut Reveal</a></li>
-          <li><a href="#">Text Rotate</a></li>
-          <li><a href="#">Variable Font Hover By Letter</a></li>
-          <li><a href="#">Variable Font Hover By Random Letter</a></li>
-          <li><a href="#">Scroll And Swap</a></li>
-          <li><a href="#">Text Cursor Proximity</a></li>
-          <li><a href="#">Variable Font & Cursor</a></li>
-          <li><a href="#">Variable Font Cursor Proximity</a></li>
-          <li><a href="#">Breathing Text</a></li>
-          <li><a href="#">Underline Animation</a></li>
-          <li><a href="#">Underline To Background</a></li>
-          <li><a href="#">Basic Number Ticker</a></li>
-          <li><a href="#">Typewriter</a></li>
-          <li><a href="#">Scramble Hover</a></li>
-          <li><a href="#">Text Highlighter</a></li>
-          <li><a href="#">Scramble In</a></li>
-          <li><a href="#">Text Along Path</a></li>
-        </ul>
-      </nav>
-      <h3>Carousel (1)</h3>
-      <nav>
-        <ul>
-          <li><a href="#">Box Carousel</a></li>
-        </ul>
-      </nav>
-      <h3>Background (2)</h3>
-      <nav>
-        <ul>
-          <li><a href="#">Animated Gradient With SVG</a></li>
-          <li><a href="#">Pixel Trail</a></li>
-        </ul>
+      <div class="sidebar-header">
+        <p class="sidebar-title">Components</p>
+        <p class="folder-count" id="folderCount"><span class="spinner"></span></p>
+      </div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="Filter…" id="filterInput">
+      </div>
+      <nav class="sidebar-nav" id="sidebarNav">
+        <div class="state-msg">
+          <span class="icon">🔧</span>
+          Configure your repo to get started.
+        </div>
       </nav>
     </aside>
 
-    <main class="content-area">
-      <article class="article-content">
-        <h1>Text Highlighter</h1>
-        <p>An animated text highlighting component with multiple trigger modes and directional animations.</p>
+    <!-- CONTENT PANE -->
+    <div class="content-pane">
+      <div class="content-toolbar" id="toolbar" style="display:none">
+        <div class="breadcrumb">
+          <span id="breadcrumbRepo">—</span>
+          <span class="breadcrumb-sep">›</span>
+          <span class="breadcrumb-active" id="breadcrumbFolder">—</span>
+        </div>
+        <div class="toolbar-actions">
+          <a href="#" class="btn" id="openGhLink" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            GitHub
+          </a>
+          <a href="#" class="btn btn-primary" id="openRawLink" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+      </div>
 
-        <h2>Installation</h2>
-        <p>CLI Manual</p>
-        <pre><code>pnpm dlx shadcn add @fancy/text-highlighter</code></pre>
+      <div class="preview-frame-wrap" id="previewWrap">
 
-        <h2>Usage</h2>
-        <h3>Typeface alphabets</h3>
-        <p>The present-day designer has a host of printing types at his disposal. Since Gutenberg first invented movable type in 1436-55 hundreds of different types have been designed and cast in lead. The most recent technical developments with computer and photo-typesetting have once again brought new faces or variations of old ones on the market.</p>
-        <p>The choice is up to the designer. It is left to his feeling for form to use good or poor typefaces for his design work. In view of the... </p>
-        <!-- More content will go here -->
-      </article>
+        <!-- WELCOME STATE -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon">✦</div>
+          <h2>Your Component Library</h2>
+          <p>Click <strong>configure repo</strong> above to point this page at your GitHub repository. Each folder with an <code>index.html</code> will appear in the sidebar.</p>
+          <button class="btn btn-primary" onclick="openModal()">Configure Repo</button>
+        </div>
 
-      <aside class="on-this-page">
-        <h3>On This Page</h3>
-        <nav>
-          <ul>
-            <li><a href="#">Installation</a></li>
-            <li><a href="#">Usage</a></li>
-            <li><a href="#">Understanding the component</a></li>
-            <li><a href="#">Different directions</a></li>
-            <li><a href="#">Hover</a></li>
-            <li><a href="#">Control via ref</a></li>
-            <li><a href="#">Notes</a></li>
-            <li><a href="#">Props</a></li>
-            <li><a href="#">TextHighlighterProps</a></li>
-            <li><a href="#">TextHighlighterRef</a></li>
-          </ul>
-        </nav>
-      </aside>
-    </main>
+        <!-- LOADING OVERLAY -->
+        <div class="loading-overlay hidden" id="loadingOverlay">
+          <div class="spinner"></div>
+          <span id="loadingMsg">Loading preview…</span>
+        </div>
+
+        <!-- IFRAME -->
+        <iframe id="preview" style="display:none" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+    </div>
   </div>
+
+  <!-- ── CONFIG MODAL ── -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>Configure Repository</h2>
+      <p>Enter your GitHub username and repository name. This page will list all folders containing an <code>index.html</code>.</p>
+
+      <div class="field">
+        <label>GitHub Username</label>
+        <input type="text" id="inputUser" placeholder="e.g. octocat">
+      </div>
+      <div class="field">
+        <label>Repository Name</label>
+        <input type="text" id="inputRepo" placeholder="e.g. my-components">
+        <p class="hint">Your GitHub Pages URL will be: <code>https://&lt;user&gt;.github.io/&lt;repo&gt;/</code></p>
+      </div>
+      <div class="field">
+        <label>Branch (optional)</label>
+        <input type="text" id="inputBranch" placeholder="main">
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveConfig()">Load Repository</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── STATE ──────────────────────────────────────────────────
+    let config = JSON.parse(localStorage.getItem('fc_config') || 'null');
+    let allFolders = [];
+    let activeFolder = null;
+
+    // ── INIT ──────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Keyboard shortcut for search
+      document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          document.getElementById('globalSearch').focus();
+        }
+      });
+
+      document.getElementById('globalSearch').addEventListener('input', e => {
+        document.getElementById('filterInput').value = e.target.value;
+        filterFolders(e.target.value);
+      });
+
+      document.getElementById('filterInput').addEventListener('input', e => {
+        filterFolders(e.target.value);
+      });
+
+      document.getElementById('repoBtn').addEventListener('click', openModal);
+
+      // Pre-fill modal if config exists
+      if (config) {
+        applyConfig(config, false);
+      } else {
+        document.getElementById('folderCount').textContent = 'No repo configured';
+      }
+    });
+
+    // ── MODAL ────────────────────────────────────────────────
+    function openModal() {
+      if (config) {
+        document.getElementById('inputUser').value = config.user || '';
+        document.getElementById('inputRepo').value = config.repo || '';
+        document.getElementById('inputBranch').value = config.branch || '';
+      }
+      document.getElementById('modalOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('inputUser').focus(), 100);
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+
+    function saveConfig() {
+      const user   = document.getElementById('inputUser').value.trim();
+      const repo   = document.getElementById('inputRepo').value.trim();
+      const branch = document.getElementById('inputBranch').value.trim() || 'main';
+
+      if (!user || !repo) {
+        document.getElementById('inputRepo').focus();
+        return;
+      }
+
+      config = { user, repo, branch };
+      localStorage.setItem('fc_config', JSON.stringify(config));
+      closeModal();
+      applyConfig(config, true);
+    }
+
+    // ── LOAD REPO ─────────────────────────────────────────────
+    async function applyConfig(cfg, refresh) {
+      document.getElementById('repoName').textContent = `${cfg.user}/${cfg.repo}`;
+      document.getElementById('githubLink').href = `https://github.com/${cfg.user}/${cfg.repo}`;
+      document.getElementById('breadcrumbRepo').textContent = cfg.repo;
+      document.getElementById('folderCount').innerHTML = '<span class="spinner"></span> Loading…';
+
+      await loadFolders(cfg);
+    }
+
+    async function loadFolders(cfg) {
+      const nav = document.getElementById('sidebarNav');
+      nav.innerHTML = '<div class="state-msg"><span class="spinner" style="margin:auto;display:block"></span><br>Fetching folders…</div>';
+
+      try {
+        const apiUrl = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/git/trees/${cfg.branch}?recursive=1`;
+        const res = await fetch(apiUrl, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+
+        if (!res.ok) throw new Error(`GitHub API ${res.status}: ${res.statusText}`);
+
+        const data = await res.json();
+
+        // Find folders that have an index.html inside them (top-level folders only)
+        const htmlFiles = new Set(
+          data.tree
+            .filter(f => f.type === 'blob' && f.path.endsWith('/index.html'))
+            .map(f => f.path.split('/')[0])
+        );
+
+        // Also grab any top-level folder (even without index.html) — but only show ones with index.html for previewing
+        // Folders = items with type 'tree' at depth 1
+        const topFolders = data.tree
+          .filter(f => f.type === 'tree' && !f.path.includes('/'))
+          .map(f => f.path)
+          .filter(name => htmlFiles.has(name))
+          .sort((a, b) => a.localeCompare(b));
+
+        allFolders = topFolders;
+
+        document.getElementById('folderCount').innerHTML =
+          `<strong>${topFolders.length}</strong> component${topFolders.length !== 1 ? 's' : ''}`;
+
+        renderNav(topFolders, cfg);
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('folderCount').textContent = 'Error loading';
+        nav.innerHTML = `<div class="state-msg">
+          <span class="icon">⚠️</span>
+          Could not fetch the repository.<br><small>${err.message}</small>
+          <br><br>
+          <button class="btn" onclick="openModal()">Reconfigure</button>
+        </div>`;
+      }
+    }
+
+    function renderNav(folders, cfg, filter = '') {
+      const nav = document.getElementById('sidebarNav');
+      const visible = filter
+        ? folders.filter(f => f.toLowerCase().includes(filter.toLowerCase()))
+        : folders;
+
+      if (visible.length === 0) {
+        nav.innerHTML = `<div class="state-msg">No folders match "<em>${filter}</em>"</div>`;
+        return;
+      }
+
+      nav.innerHTML = '';
+      visible.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-item' + (name === activeFolder ? ' active' : '');
+        btn.dataset.folder = name;
+        btn.innerHTML = `
+          <span class="nav-item-icon">📂</span>
+          <span class="nav-item-label">${name}</span>
+          <span class="nav-item-arrow">›</span>
+        `;
+        btn.addEventListener('click', () => loadPreview(name, cfg));
+        nav.appendChild(btn);
+      });
+    }
+
+    function filterFolders(query) {
+      if (!config) return;
+      renderNav(allFolders, config, query);
+    }
+
+    // ── PREVIEW ──────────────────────────────────────────────
+    async function loadPreview(folder, cfg) {
+      activeFolder = folder;
+
+      // Update sidebar active state
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.folder === folder);
+      });
+
+      // Show toolbar
+      document.getElementById('toolbar').style.display = 'flex';
+      document.getElementById('breadcrumbFolder').textContent = folder;
+
+      // Build URLs
+      const pagesBase  = `https://${cfg.user}.github.io/${cfg.repo}`;
+      const ghFileLink = `https://github.com/${cfg.user}/${cfg.repo}/tree/${cfg.branch}/${folder}`;
+      const previewUrl = `${pagesBase}/${folder}/index.html`;
+
+      document.getElementById('openGhLink').href  = ghFileLink;
+      document.getElementById('openRawLink').href = previewUrl;
+
+      // Show loading
+      const iframe       = document.getElementById('preview');
+      const emptyState   = document.getElementById('emptyState');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+
+      emptyState.style.display = 'none';
+      iframe.style.display     = 'none';
+      loadingOverlay.classList.remove('hidden');
+      document.getElementById('loadingMsg').textContent = `Loading ${folder}…`;
+
+      // Load iframe
+      iframe.src = '';
+      iframe.onload = () => {
+        loadingOverlay.classList.add('hidden');
+        iframe.style.display = 'block';
+      };
+      iframe.onerror = () => {
+        loadingOverlay.classList.add('hidden');
+        iframe.style.display = 'block';
+      };
+      iframe.src = previewUrl;
+
+      // Fallback: if onload doesn't fire (cross-origin), just show after a delay
+      setTimeout(() => {
+        if (!loadingOverlay.classList.contains('hidden')) {
+          loadingOverlay.classList.add('hidden');
+          iframe.style.display = 'block';
+        }
+      }, 4000);
+    }
+  </script>
 </body>
 </html>
