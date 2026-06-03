@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Cursor Proximity</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: #fff;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .card {
+    position: relative;
+    min-width: 280px;
+    max-width: 400px;
+    width: min(80vw, 400px);
+    height: min(66vh, 480px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #0015ff;
+    color: #fff;
+    padding: 1.25rem;
+    box-shadow: 0 8px 40px rgba(0,0,255,0.25);
+  }
+
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    text-transform: uppercase;
+    line-height: 0.9;
+  }
+
+  .title-line {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-weight: 900;
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    letter-spacing: -0.02em;
+    display: block;
+  }
+
+  .details-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: Arial, sans-serif;
+    font-weight: 600;
+    font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .detail-line {
+    display: block;
+  }
+
+  .detail-line.right { text-align: right; }
+  .detail-line.left  { text-align: left; }
+
+  /* Each letter is a span with data-index */
+  .letter {
+    display: inline-block;
+    transition: filter 0.04s linear;
+    will-change: filter;
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="title-block">
+    <span class="title-line" id="line-digital"></span>
+    <span class="title-line" id="line-workshop"></span>
+  </div>
+
+  <div class="details-block">
+    <span class="detail-line left"  id="d1"></span>
+    <span class="detail-line right" id="d2"></span>
+    <span class="detail-line left"  id="d3"></span>
+    <span class="detail-line left"  id="d4"></span>
+    <span class="detail-line right" id="d5"></span>
+  </div>
+</div>
+
+<script>
+const TITLE_BLUR_MAX  = 8;
+const DETAIL_BLUR_MAX = 4;
+const TITLE_RADIUS    = 120;
+const DETAIL_RADIUS   = 80;
+
+let mouseX = -9999, mouseY = -9999;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+document.addEventListener('touchmove', e => {
+  mouseX = e.touches[0].clientX;
+  mouseY = e.touches[0].clientY;
+}, { passive: true });
+
+function buildLetterSpans(container, text) {
+  container.innerHTML = '';
+  for (const ch of text) {
+    if (ch === ' ') {
+      container.appendChild(document.createTextNode('\u00A0'));
+    } else {
+      const s = document.createElement('span');
+      s.className = 'letter';
+      s.textContent = ch;
+      container.appendChild(s);
+    }
+  }
+}
+
+const titleLines = [
+  { el: document.getElementById('line-digital'),  text: 'DIGITAL',  radius: TITLE_RADIUS,  blurMax: TITLE_BLUR_MAX,  falloff: 'gaussian' },
+  { el: document.getElementById('line-workshop'), text: 'WORKSHOP', radius: TITLE_RADIUS,  blurMax: TITLE_BLUR_MAX,  falloff: 'gaussian' },
+];
+const detailLines = [
+  { el: document.getElementById('d1'), text: 'LONDON, UK ⟡ 18:30 GMT',               radius: DETAIL_RADIUS, blurMax: DETAIL_BLUR_MAX, falloff: 'exponential' },
+  { el: document.getElementById('d2'), text: '123 DIGITAL STREET, EC1A 1BB ⟶',       radius: DETAIL_RADIUS, blurMax: DETAIL_BLUR_MAX, falloff: 'exponential' },
+  { el: document.getElementById('d3'), text: '+44 20 7123 4567 ⟨⟩ INFO@DIGITAL.WORK', radius: DETAIL_RADIUS, blurMax: DETAIL_BLUR_MAX, falloff: 'exponential' },
+  { el: document.getElementById('d4'), text: '@DIGITALWORKSHOP * DIGITAL.WORK®',      radius: DETAIL_RADIUS, blurMax: DETAIL_BLUR_MAX, falloff: 'exponential' },
+  { el: document.getElementById('d5'), text: 'RSVP REQUIRED ⌲ LIMITED SEATS',        radius: DETAIL_RADIUS, blurMax: DETAIL_BLUR_MAX, falloff: 'exponential' },
+];
+
+const allLines = [...titleLines, ...detailLines];
+allLines.forEach(line => buildLetterSpans(line.el, line.text));
+
+function calcFalloff(dist, radius, type) {
+  if (type === 'gaussian') {
+    return Math.exp(-Math.pow(dist / (radius / 2), 2) / 2);
+  } else if (type === 'exponential') {
+    const n = Math.min(Math.max(1 - dist / radius, 0), 1);
+    return n * n;
+  }
+  return Math.min(Math.max(1 - dist / radius, 0), 1);
+}
+
+function tick() {
+  allLines.forEach(line => {
+    const spans = line.el.querySelectorAll('.letter');
+    spans.forEach(span => {
+      const rect = span.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      const dist = Math.hypot(mouseX - cx, mouseY - cy);
+      const proximity = calcFalloff(dist, line.radius, line.falloff);
+      const blur = line.blurMax * proximity;
+      span.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : '';
+    });
+  });
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
