@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { shaderMaterial, useTrailTexture } from '@react-three/drei';
+import { useMemo, useEffect, useRef, useCallback } from 'react';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
+import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
 import './PixelTrail.css';
@@ -45,15 +45,10 @@ const DotMaterial = shaderMaterial(
       return clamp(newUv, 0.0, 1.0);
     }
 
-    float sdfCircle(vec2 p, float r) {
-        return length(p - 0.5) - r;
-    }
-
     void main() {
       vec2 screenUv = gl_FragCoord.xy / resolution;
       vec2 uv = coverUv(screenUv);
 
-      vec2 gridUv = fract(uv * gridSize);
       vec2 gridUvCenter = (floor(uv * gridSize) + 0.5) / gridSize;
 
       float trail = texture2D(mouseTrail, gridUvCenter).r;
@@ -63,6 +58,110 @@ const DotMaterial = shaderMaterial(
   `
 );
 
+// Custom, robust trail texture hook that reactively updates and prevents exit-to-entry line glitches.
+function useCustomTrailTexture({
+  size = 512,
+  radius = 0.1,
+  maxAge = 500,
+  interpolate = 0,
+  ease = (x) => x
+}) {
+  // Create static canvas
+  const canvas = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    return c;
+  }, [size]);
+
+  const ctx = useMemo(() => canvas.getContext('2d'), [canvas]);
+
+  // Create CanvasTexture
+  const texture = useMemo(() => {
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.minFilter = THREE.NearestFilter;
+    tex.magFilter = THREE.NearestFilter;
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    return tex;
+  }, [canvas]);
+
+  const points = useRef([]);
+  const lastPoint = useRef(null);
+
+  // Clean up texture
+  useEffect(() => {
+    return () => texture.dispose();
+  }, [texture]);
+
+  // Register pointer move
+  const onMove = useCallback((e) => {
+    if (!e.uv) return;
+    const x = e.uv.x;
+    const y = e.uv.y;
+
+    if (lastPoint.current && interpolate > 0) {
+      const dx = x - lastPoint.current.x;
+      const dy = y - lastPoint.current.y;
+      const steps = Math.floor(interpolate);
+      
+      for (let i = 1; i <= steps; i++) {
+        const t = i / (steps + 1);
+        const ix = lastPoint.current.x + dx * t;
+        const iy = lastPoint.current.y + dy * t;
+        points.current.push({ x: ix, y: iy, age: 0 });
+      }
+    }
+
+    points.current.push({ x, y, age: 0 });
+    lastPoint.current = { x, y };
+  }, [interpolate]);
+
+  // Reset tracking on leave to prevent long straight connector lines
+  const onLeave = useCallback(() => {
+    lastPoint.current = null;
+  }, []);
+
+  // Update canvas and texture per frame
+  useFrame((state, delta) => {
+    const ageStep = delta * 1000; // ms
+    
+    // 1. Age existing points and filter dead ones
+    points.current.forEach((p) => (p.age += ageStep));
+    points.current = points.current.filter((p) => p.age < maxAge);
+
+    // 2. Clear canvas
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, size, size);
+
+    // 3. Draw points
+    points.current.forEach((p) => {
+      const alpha = 1.0 - p.age / maxAge;
+      const easedAlpha = ease ? ease(alpha) : alpha;
+
+      const cx = p.x * size;
+      const cy = (1 - p.y) * size;
+      const r = radius * size;
+
+      if (r <= 0) return;
+
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      grad.addColorStop(0, `rgba(255, 255, 255, ${easedAlpha})`);
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // 4. Update GPU texture
+    texture.needsUpdate = true;
+  });
+
+  return [texture, onMove, onLeave];
+}
+
 function Scene({ gridSize, trailSize, maxAge, interpolate, easingFunction, pixelColor }) {
   const size = useThree(s => s.size);
   const viewport = useThree(s => s.viewport);
@@ -70,25 +169,18 @@ function Scene({ gridSize, trailSize, maxAge, interpolate, easingFunction, pixel
   const dotMaterial = useMemo(() => new DotMaterial(), []);
   dotMaterial.uniforms.pixelColor.value = new THREE.Color(pixelColor);
 
-  const [trail, onMove] = useTrailTexture({
+  const [trail, onMove, onLeave] = useCustomTrailTexture({
     size: 512,
     radius: trailSize,
     maxAge: maxAge,
-    interpolate: interpolate || 0.1,
-    ease: easingFunction || (x => x)
+    interpolate: interpolate,
+    ease: easingFunction
   });
-
-  if (trail) {
-    trail.minFilter = THREE.NearestFilter;
-    trail.magFilter = THREE.NearestFilter;
-    trail.wrapS = THREE.ClampToEdgeWrapping;
-    trail.wrapT = THREE.ClampToEdgeWrapping;
-  }
 
   const scale = Math.max(viewport.width, viewport.height) / 2;
 
   return (
-    <mesh scale={[scale, scale, 1]} onPointerMove={onMove}>
+    <mesh scale={[scale, scale, 1]} onPointerMove={onMove} onPointerLeave={onLeave}>
       <planeGeometry args={[2, 2]} />
       <primitive
         object={dotMaterial}

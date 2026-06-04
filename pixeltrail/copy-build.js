@@ -45,14 +45,14 @@ function deleteFolderRecursive(dirPath) {
 try {
   console.log('📦 Starting post-build copy...');
   
-  // Copy built index.html
-  const srcHtml = path.join(buildDir, 'index.html');
+  // Copy built source.html to index.html
+  const srcHtml = path.join(buildDir, 'source.html');
   const destHtml = path.join(targetDir, 'index.html');
   if (fs.existsSync(srcHtml)) {
     fs.copyFileSync(srcHtml, destHtml);
-    console.log('✅ Copied index.html');
+    console.log('✅ Copied built source.html to index.html');
   } else {
-    console.warn('⚠️ No index.html found in dist!');
+    console.warn('⚠️ No source.html found in dist!');
   }
 
   // Copy built assets directory
